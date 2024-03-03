@@ -15,14 +15,11 @@
  */
 package com.example.marsphotos
 
-import LocatorAlumnos
 import android.app.Application
-import android.os.Bundle
 import android.util.Log
 import com.example.marsphotos.data.AppContainer
 import com.example.marsphotos.data.DefaultAppContainer
 import com.example.marsphotos.data.ServiceLocator
-import kotlinx.coroutines.runBlocking
 
 class MarsPhotosApplication : Application() {
 
@@ -36,6 +33,7 @@ class MarsPhotosApplication : Application() {
         container = DefaultAppContainer()
 
         ServiceLocator.context = applicationContext
+
        // LocatorAlumnos.context=applicationContext
     }
 

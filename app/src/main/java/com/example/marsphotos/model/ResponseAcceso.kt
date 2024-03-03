@@ -33,6 +33,5 @@ data class AccesoLoginResponse @JvmOverloads constructor(
 @Serializable
 data class AccesoLoginResult(
     val acceso : String,
-    val estatus: String,
     val matricula: String
 )

@@ -14,20 +14,17 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
-import com.example.marsphotos.data.ServiceLocator.service
 import com.example.marsphotos.model.AccesoLoginResult
 import com.example.marsphotos.model.AlumnoAcademicoResponse
 import com.example.marsphotos.model.MarsPhoto
-import com.example.marsphotos.network.SICENETwService2
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.IOException
+
 
 /**
  * UI state for the Home screen
@@ -45,6 +42,11 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         private set
     var alumnoProfile: AlumnoAcademicoResponse? by mutableStateOf(null)
         private set
+
+
+
+
+
 
     fun realizarAccesoLogin() {
         val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
@@ -108,6 +110,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
      //  Log.d("Cookie LocatoAl", LocatorAlumnos.cok)
 
        viewModelScope.launch(Dispatchers.IO) {
+
            marsUiState = MarsUiState.Loading
            marsUiState = try {
                val response = LocatorAlumnos.serviceAL.cargarPerfil(requestBody3)
@@ -151,55 +154,28 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
        }
    }
 
-    /* fun getAlumnoAcademicoWithLineamiento() {
-         val requestBody4 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                 "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                 "  <soap:Body>\n" +
-                 "    <getAlumnoAcademicoWithLineamiento xmlns=\"http://tempuri.org/\" />\n" +
-                 "  </soap:Body>\n" +
-                 "</soap:Envelope>"
-         val requestBody3= requestBody4.toRequestBody(
-             "text/xml".toMediaTypeOrNull())
-
-         viewModelScope.launch(Dispatchers.IO) {
-             val response = LocatorAlumnos.serviceAL.cargarPerfil(requestBody3)
-             if (response.isSuccessful) {
-                 val responseBodyString = response.body()?.string()
-
-                 Log.d("ALUMNO XML", "Response: $responseBodyString")
-             } else {
-                 Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
-             }
-         }
-     }*/
 
     init {
-        //getMarsPhotos()
-       realizarAccesoLogin()
+        getMarsPhotos()
+      // realizarAccesoLogin()
         //getAlumnoAcademicoWithLineamiento()
     }
 
     /**
      * Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].
-
-    fun getMarsPhotos() {
-        viewModelScope.launch {
-            marsUiState = MarsUiState.Loading
-            marsUiState = try {
-                val listResult = marsPhotosRepository.getMarsPhotos()
-                MarsUiState.Success(
-                    "Success: ${listResult.size} Mars photos retrieved"
-                )
-            } catch (e: IOException) {
-                MarsUiState.Error
-            } catch (e: HttpException) {
-                MarsUiState.Error
-            }
-        }
-    }
      */
-    /**
+    fun getMarsPhotos() {
+            marsUiState = MarsUiState.Loading
+
+         realizarAccesoLogin()
+
+    } /**
+    fun getMarsPhotos(){
+        realizarAccesoLogin()
+    }
+
+
      * Factory for [MarsViewModel] that takes [MarsPhotosRepository] as a dependency
      */
     companion object {

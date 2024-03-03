@@ -1,14 +1,15 @@
 package com.example.marsphotos.DataBase
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
-@Database(entities = [Item::class], version = 1, exportSchema = false)
+@Database(
+    entities = [Item::class],
+    version = 1)
+
 abstract class DatabaseSicenet : RoomDatabase() {
 
     abstract fun DaoSicenet(): DaoSicenet
-
+/*
     companion object{
         @Volatile
         private var INSTANCE: DatabaseSicenet? = null
@@ -25,4 +26,6 @@ abstract class DatabaseSicenet : RoomDatabase() {
             }
         }
     }
+
+ */
 }

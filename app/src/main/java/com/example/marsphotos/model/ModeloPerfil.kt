@@ -1,9 +1,9 @@
 package com.example.marsphotos.model
 
+import kotlinx.serialization.Serializable
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.Namespace
 import org.simpleframework.xml.Root
-import kotlinx.serialization.Serializable
 
 @Root(name = "Envelope")
 @Namespace(prefix = "soap", reference = "http://schemas.xmlsoap.org/soap/envelope/")
@@ -32,19 +32,19 @@ data class GetAlumnoAcademicoWithLineamientoResponse @JvmOverloads constructor(
 
 @Serializable
 data class AlumnoAcademicoResponse(
-    val fechaReins: String,
-    val modEducativo: Int,
-    val adeudo: Boolean,
-    val urlFoto: String,
-    val adeudoDescripcion: String,
-    val inscrito: Boolean,
-    val estatus: String,
-    val semActual: Int,
-    val cdtosAcumulados: Int,
-    val cdtosActuales: Int,
-    val especialidad: String,
-    val carrera: String,
-    val lineamiento: Int,
-    val nombre: String,
-    val matricula: String
+        val fechaReins: String,
+        val modEducativo: Int,
+        val adeudo: Boolean,
+        val urlFoto: String,
+        val adeudoDescripcion: String,
+        val inscrito: Boolean,
+        val estatus: String,
+        val semActual: Int,
+        val cdtosAcumulados: Int,
+        val cdtosActuales: Int,
+        val especialidad: String,
+        val carrera: String,
+        val lineamiento: Int,
+        val nombre: String,
+        val matricula: String
 )

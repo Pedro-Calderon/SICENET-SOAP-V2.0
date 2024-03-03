@@ -3,72 +3,42 @@ package com.example.marsphotos.DataBase
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-@Entity
- class Item {
-    @Entity(tableName = "Datosdelalumno")
-    data class Item0(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-        @ColumnInfo(name = "Matricula")
-        val itemMatricula: String,
-        @ColumnInfo(name = "Nombre")
-        val itemNombre: String,
-        @ColumnInfo(name = "Carrera")
-        val itemCarrera: String,
-        @ColumnInfo(name = "Promedio")
-        val itemPromedio: Double,
-        @ColumnInfo(name = "Semestre")
-        val itemSemestre: Int
+@Entity(tableName = "Datosdelalumno")
+data class Item(
 
-    )
-    @Entity(tableName = "Calificaciones")
-    data class Item1(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-        @ColumnInfo(name = "Matricula")
-        val itemMatricula: String,
-        @ColumnInfo(name = "Nombre")
-        val itemNombre: String,
-        @ColumnInfo(name = "Materia")
-        val itemMateria: String,
-        @ColumnInfo(name = "Calificacion")
-        val itemCalificacion: Int
-
-    )
-    @Entity(tableName = "Calificaciones Finales")
-    data class Item2(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-        @ColumnInfo(name = "Matricula")
-        val itemMatricula: String,
-        @ColumnInfo(name = "Nombre")
-        val itemNombre: String,
-        @ColumnInfo(name = "Materia")
-        val itemMateria: String,
-        @ColumnInfo(name = "Calificacion")
-        val itemCalificacion: Int,
-        @ColumnInfo(name = "Promedio")
-        val itemPromedio: Double
-
-    )
-    @Entity(tableName = "Kardex")
-    data class Item3(
-        @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-        @ColumnInfo(name = "Matricula")
-        val itemMatricula: String,
-        @ColumnInfo(name = "Nombre")
-        val itemNombre: String,
-        @ColumnInfo(name = "Materia")
-        val itemMateria: String,
-        @ColumnInfo(name = "Calificacion")
-        val itemCalificacion: Int,
-        @ColumnInfo(name = "Semestre")
-        val itemSemestre: Int,
-        @ColumnInfo(name = "Estatus")
-        val itemEstatus: String
-
-    )
-
-
-}
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name="id")
+    val id:Int=0,
+    @ColumnInfo(name = "Matricula")
+    val itemMatricula: String,
+    @ColumnInfo(name = "Nombre")
+    val itemNombre: String,
+    @ColumnInfo(name = "Carrera")
+    val itemCarrera: String,
+    @ColumnInfo(name = "Semestre")
+    val itemSemestre: Int,
+    @ColumnInfo(name = "FechaReins")
+    val fechaReins: String,
+    @ColumnInfo(name = "ModEducativo")
+    val modEducativo: Int,
+    @ColumnInfo(name = "Adeudo")
+    val adeudo: Boolean,
+    @ColumnInfo(name = "UrlFoto")
+    val urlFoto: String,
+    @ColumnInfo(name = "AdeudoDescripcion")
+    val adeudoDescripcion: String,
+    @ColumnInfo(name = "Inscrito")
+    val inscrito: Boolean,
+    @ColumnInfo(name = "Estatus")
+    val estatus: String,
+    @ColumnInfo(name = "SemActual")
+    val semActual: Int,
+    @ColumnInfo(name = "CdtosAcumulados")
+    val cdtosAcumulados: Int,
+    @ColumnInfo(name = "CdtosActuales")
+    val cdtosActuales: Int,
+    @ColumnInfo(name = "Especialidad")
+    val especialidad: String,
+    @ColumnInfo(name = "Lineamiento")
+    val lineamiento: Int
+)
