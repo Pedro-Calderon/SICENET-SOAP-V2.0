@@ -156,6 +156,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
     init {
+        getMarsPhotos()
 
     }
 
@@ -164,7 +165,17 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
      * [MarsPhoto] [List] [MutableList].
      */
     fun getMarsPhotos() {
+        viewModelScope.launch {
             marsUiState = MarsUiState.Loading
+            marsUiState = try {
+        MarsUiState.Success(
+            "Success: $alumnoProfile?.nombre"
+        ) } catch (e: IOException) {
+                MarsUiState.Error
+            } catch (e: HttpException) {
+                MarsUiState.Error
+            }
+        }
 
 
 

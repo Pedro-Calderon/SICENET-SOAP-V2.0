@@ -1,5 +1,6 @@
 package com.example.marsphotos
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,12 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.marsphotos.ui.MarsPhotosApp
 import com.example.marsphotos.ui.screens.MarsViewModel
 import com.example.marsphotos.ui.screens.loginScreen.LoginScreen
 import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
 class MainActivity : ComponentActivity() {
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -24,7 +30,16 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    LoginScreen(viewModel = marsViewModel)
+                    val navController= rememberNavController()
+                        NavHost(navController = navController, startDestination = "main"){
+                            composable("main"){
+                                LoginScreen(viewModel = marsViewModel)
+                            }
+                            composable("DatosAlumno"){
+
+                            }
+                        }
+                    // MarsPhotosApp()
                 }
             }
         }

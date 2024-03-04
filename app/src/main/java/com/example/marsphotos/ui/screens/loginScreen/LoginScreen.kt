@@ -96,7 +96,8 @@ fun LoginScreen(viewModel: MarsViewModel) {
                     matricula = matricula,
                     password = password,
                     isValidPassword = isValidpassword
-                )            }
+                )
+            }
         }
         }
     }
