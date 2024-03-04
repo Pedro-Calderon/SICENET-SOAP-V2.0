@@ -1,5 +1,7 @@
 package com.example.marsphotos.ui.screens.loginScreen
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -28,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.marsphotos.R
@@ -42,9 +52,6 @@ fun LoginScreen(){
         mutableStateOf("")
     }
 
-    var isValidMatricula by remember {
-        mutableStateOf("")
-    }
 
     var password by remember {
         mutableStateOf("")
@@ -59,7 +66,7 @@ fun LoginScreen(){
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(Color(0xFFb5e48c))){
+        .background(Color(0xf3f8d6))){
         Column(
             Modifier
                 .align(Alignment.Center)
@@ -71,19 +78,54 @@ fun LoginScreen(){
         ) {
             Column (Modifier.padding(16.dp)){
                     RowImagen()
-                RowMatricula()
+                RowMatricula(
+                    matricula=matricula,
+                    matriculaChange = {
+                        matricula=it
+                    }
+                    )
+                RowPassword(
+                    contrasena = password,
+                    passwordChange ={password=it
+                                    isValidpassword=password.length>=8},
+                    passwordVisible = passwordVisible,
+                    passwordVisibleChange = { passwordVisible=!passwordVisible },
+                    isValidPassword = isValidpassword
+                )
+                RowButtonLogin(context = context, isValidPassword = isValidpassword)
             }
         }
         }
     }
 }
+@Composable
+fun RowButtonLogin(
+    context: Context,
+    isValidPassword: Boolean
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.Center) {
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { login(context) },
+            enabled = isValidPassword
+        ) {
+            Text(text = "Inciar Sesión")
+        }
+    }
+}
 
+fun login(context: Context) {
+    Toast.makeText(context, "Inicio Sesion", Toast.LENGTH_LONG).show()
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowMatricula(
     matricula: String,
     matriculaChange:(String)->Unit,
-    isValid:Boolean
 ){
     Row (
         Modifier
@@ -96,23 +138,57 @@ fun RowMatricula(
             label={ Text(text = "Matricula")},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             maxLines =1,
-            singleLine = true,
-            colors=if(isValid){
-                TextFieldDefaults.outlinedTextFieldColors(
-                    focusedLabelColor = Color.Green,
-                    focusedBorderColor = Color.Green
-                )
-            }else{
-                TextFieldDefaults.outlinedTextFieldColors(
-                    focusedLabelColor = Color.Red,
-                    focusedBorderColor = Color.Red
-                )
-            }
+            singleLine = true
+        )
+    }
+}
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RowPassword(
+    contrasena: String,
+    passwordChange: (String)->Unit,
+    passwordVisible: Boolean,
+    passwordVisibleChange: ()->Unit,
+    isValidPassword: Boolean
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.Center) {
+        OutlinedTextField(
+            value = contrasena,
+            onValueChange = passwordChange,
+            maxLines = 1,
+            singleLine = true,
+            label = { Text(text = "Contraseña") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val image = if(passwordVisible) {
+                    Icons.Filled.VisibilityOff
+                } else {
+                    Icons.Filled.Visibility
+                }
+                IconButton(
+                    onClick = passwordVisibleChange
+                ) {
+                    Icon(
+                        imageVector = image,
+                        contentDescription = "Ver contraseña")
+                }
+            },
+            visualTransformation = if(passwordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            }
 
         )
     }
 }
+
 
 
 @Composable
