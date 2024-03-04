@@ -41,10 +41,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.marsphotos.R
-
-@Preview(showBackground = true, showSystemUi = true)
+import com.example.marsphotos.ui.screens.MarsViewModel
 @Composable
-fun LoginScreen(){
+fun LoginScreen(viewModel: MarsViewModel) {
 
     val context= LocalContext.current
 
@@ -87,20 +86,26 @@ fun LoginScreen(){
                 RowPassword(
                     contrasena = password,
                     passwordChange ={password=it
-                                    isValidpassword=password.length>=8},
+                                    isValidpassword=password.length>=6},
                     passwordVisible = passwordVisible,
                     passwordVisibleChange = { passwordVisible=!passwordVisible },
                     isValidPassword = isValidpassword
                 )
-                RowButtonLogin(context = context, isValidPassword = isValidpassword)
-            }
+                RowButtonLogin(
+                    viewModel = viewModel,
+                    matricula = matricula,
+                    password = password,
+                    isValidPassword = isValidpassword
+                )            }
         }
         }
     }
 }
 @Composable
 fun RowButtonLogin(
-    context: Context,
+    viewModel: MarsViewModel,
+    matricula: String,
+    password: String,
     isValidPassword: Boolean
 ) {
     Row(
@@ -110,7 +115,11 @@ fun RowButtonLogin(
         horizontalArrangement = Arrangement.Center) {
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { login(context) },
+            onClick = {
+                if (isValidPassword) {
+                    viewModel.realizarAccesoLogin(matricula, password)
+                }
+                      },
             enabled = isValidPassword
         ) {
             Text(text = "Inciar Sesión")

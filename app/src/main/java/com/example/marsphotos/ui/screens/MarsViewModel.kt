@@ -25,10 +25,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.IOException
 
-
-/**
- * UI state for the Home screen
- */
 sealed interface MarsUiState {
     data class Success(val photos: String) : MarsUiState
     object Error : MarsUiState
@@ -46,14 +42,14 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
 
+//s18120201, 5f_Wx%
 
-
-    fun realizarAccesoLogin() {
+    fun realizarAccesoLogin( matricula:String, password:String) {
         val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "  <soap:Body>\n" +
                 "    <accesoLogin xmlns=\"http://tempuri.org/\">\n" +
-                "      <strMatricula>s18120201</strMatricula>\n" +
-                "      <strContrasenia>5f_Wx%</strContrasenia>\n" +
+                "      <strMatricula>$matricula</strMatricula>\n" +
+                "      <strContrasenia>$password</strContrasenia>\n" +
                 "      <tipoUsuario>ALUMNO</tipoUsuario>\n" +
                 "    </accesoLogin>\n" +
                 "  </soap:Body>\n" +
@@ -76,6 +72,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                 val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
                 Log.d("LOGIN JSON", "Response: $accesoLoginResult")
                 Log.d("LOGIN XML", "Response: $responseBodyString")
+
+                Log.d("Acceso?", "Response: ${accesoLoginResult.acceso}")
 
              if (accesoLoginResult.acceso == ("true")){
                  getAlumnoAcademicoWithLineamiento()
@@ -123,7 +121,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                    val perfilResult = gson.fromJson(json, AlumnoAcademicoResponse::class.java)
 
                    alumnoProfile = perfilResult  // Actualizar el estado con el resultado del perfil del alumno
-
+                    Log.d("Alumno","$perfilResult")
 
 
                    MarsUiState.Success(
@@ -158,14 +156,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
     init {
-        //getMarsPhotos()
-       if (realizarAccesoLogin()==null){
-           MarsUiState.Error
-       }else
-       {
-           realizarAccesoLogin()
-       }
-        //getAlumnoAcademicoWithLineamiento()
+
     }
 
     /**
@@ -176,7 +167,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             marsUiState = MarsUiState.Loading
 
 
-         realizarAccesoLogin()
+
 
     }
     /**  * Factory for [MarsViewModel] that takes [MarsPhotosRepository] as a dependency
