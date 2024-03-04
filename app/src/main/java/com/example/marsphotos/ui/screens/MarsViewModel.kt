@@ -124,6 +124,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
                    alumnoProfile = perfilResult  // Actualizar el estado con el resultado del perfil del alumno
 
+
+
                    MarsUiState.Success(
                        buildString {
                            appendLine("Nombre: ${perfilResult.nombre}")
@@ -156,8 +158,13 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
     init {
-        getMarsPhotos()
-      // realizarAccesoLogin()
+        //getMarsPhotos()
+       if (realizarAccesoLogin()==null){
+           MarsUiState.Error
+       }else
+       {
+           realizarAccesoLogin()
+       }
         //getAlumnoAcademicoWithLineamiento()
     }
 
@@ -168,16 +175,29 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     fun getMarsPhotos() {
             marsUiState = MarsUiState.Loading
 
+
          realizarAccesoLogin()
 
-    } /**
-    fun getMarsPhotos(){
-        realizarAccesoLogin()
+    }
+    /**  * Factory for [MarsViewModel] that takes [MarsPhotosRepository] as a dependency
+    x*
+    fun getMarsPhotos() {
+            viewModelScope.launch {
+            marsUiState = MarsUiState.Loading
+       try {
+
+           realizarAccesoLogin()
+
+            } catch (e: IOException) {
+            MarsUiState.Error
+            } catch (e: HttpException) {
+            MarsUiState.Error
+            }
+            }
     }
 
-
-     * Factory for [MarsViewModel] that takes [MarsPhotosRepository] as a dependency
      */
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

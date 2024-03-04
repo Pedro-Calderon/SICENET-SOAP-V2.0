@@ -5,6 +5,9 @@
 package com.example.marsphotos.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +30,7 @@ import com.example.marsphotos.DataBase.Item
 import com.example.marsphotos.R
 import com.example.marsphotos.ui.screens.HomeScreen
 import com.example.marsphotos.ui.screens.MarsViewModel
+import java.io.IOException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,44 +49,59 @@ fun MarsPhotosApp() {
         ) {
             HomeScreen(
                 marsUiState = marsViewModel.marsUiState,
+                alumnoProfile = marsViewModel.alumnoProfile
             )
         }
     }
     val room: DatabaseSicenet =
         Room.databaseBuilder(LocalContext.current, DatabaseSicenet::class.java, "alumno").build()
-
+    val connectivityManager = LocalContext.current.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val networkInfo = connectivityManager.activeNetworkInfo
 
     LaunchedEffect(marsViewModel.alumnoProfile) {
         if (alumnoProfile != null) {
             try {
-                room.DaoSicenet().insertarAlumno(
-                    Item(
-                        itemMatricula = alumnoProfile.matricula,
-                        itemNombre = alumnoProfile.nombre,
-                        itemCarrera = alumnoProfile.carrera,
-                        itemSemestre = alumnoProfile.semActual,
-                        fechaReins = alumnoProfile.fechaReins,
-                        modEducativo = alumnoProfile.modEducativo,
-                        adeudo = alumnoProfile.adeudo,
-                        urlFoto = alumnoProfile.urlFoto,
-                        adeudoDescripcion = alumnoProfile.adeudoDescripcion,
-                        inscrito = alumnoProfile.inscrito,
-                        estatus = alumnoProfile.estatus,
-                        semActual = alumnoProfile.semActual,
-                        cdtosAcumulados = alumnoProfile.cdtosAcumulados,
-                        cdtosActuales = alumnoProfile.cdtosActuales,
-                        especialidad = alumnoProfile.especialidad,
-                        lineamiento = alumnoProfile.lineamiento
+
+
+                if (networkInfo != null && networkInfo.isConnected) {
+                    room.DaoSicenet().insertarAlumno(
+                        Item(
+                            itemMatricula = alumnoProfile.matricula,
+                            itemNombre = alumnoProfile.nombre,
+                            itemCarrera = alumnoProfile.carrera,
+                            itemSemestre = alumnoProfile.semActual,
+                            fechaReins = alumnoProfile.fechaReins,
+                            modEducativo = alumnoProfile.modEducativo,
+                            adeudo = alumnoProfile.adeudo,
+                            urlFoto = alumnoProfile.urlFoto,
+                            adeudoDescripcion = alumnoProfile.adeudoDescripcion,
+                            inscrito = alumnoProfile.inscrito,
+                            estatus = alumnoProfile.estatus,
+                            semActual = alumnoProfile.semActual,
+                            cdtosAcumulados = alumnoProfile.cdtosAcumulados,
+                            cdtosActuales = alumnoProfile.cdtosActuales,
+                            especialidad = alumnoProfile.especialidad,
+                            lineamiento = alumnoProfile.lineamiento
+                        )
                     )
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                println("Error al insertar alumno en la base de datos: ${e.message}")
+                } else {
+                    // No hay conexión a Internet, manejar en consecuencia (mostrar mensaje, etc.)
+                    Log.d("Error", "No hay conexión a Internet")
+                }
+            } catch (ioException: IOException) {
+                // Manejar excepción de falta de conexión a Internet
+                ioException.printStackTrace()
+                Log.e("Error", "Error de conexión a Internet: ${ioException.message}")
+            } catch (exception: Exception) {
+                // Manejar otras excepciones
+                exception.printStackTrace()
+                Log.e("Error", "Error al insertar alumno en la base de datos: ${exception.message}")
             }
         } else {
-            println("Error: no existe el alumno")
+            Log.d("Error", "No existe el alumno")
         }
     }
+
 }
 @Composable
 fun MarsTopAppBar(scrollBehavior: TopAppBarScrollBehavior, modifier: Modifier = Modifier) {

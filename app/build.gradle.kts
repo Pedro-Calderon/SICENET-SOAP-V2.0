@@ -55,7 +55,8 @@ android {
 dependencies {
     implementation ("org.simpleframework:simple-xml:2.7.1")
     implementation ("com.squareup.retrofit2:converter-simplexml:2.9.0")
-
+    //iconos
+    implementation("androidx.compose.material:material-icons-extended:1.6.2")
 
     implementation ("org.jsoup:jsoup:1.14.3")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1")
