@@ -11,9 +11,17 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.marsphotos.MarsPhotosApplication
+import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
+import com.example.marsphotos.data.ServiceLocator.context
 import com.example.marsphotos.model.AccesoLoginResult
 import com.example.marsphotos.model.AlumnoAcademicoResponse
 import com.example.marsphotos.model.MarsPhoto
@@ -42,6 +50,49 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
 //s18120201, 5f_Wx%
+fun realizarAccesoLoginInBackground(matricula: String, password: String) {
+    val inputData = workDataOf(
+        "matricula" to matricula,
+        "password" to password
+    )
+
+    val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
+    val accesoLoginWorkRequest =
+        OneTimeWorkRequestBuilder<AccesoLoginWorker>()
+            .setInputData(inputData)
+            .setConstraints(constraints)
+            .build()
+
+    WorkManager.getInstance(context).enqueue(accesoLoginWorkRequest)
+
+    // Observa los resultados del Worker utilizando LiveData
+    val workInfoLiveData = WorkManager.getInstance(context)
+        .getWorkInfoByIdLiveData(accesoLoginWorkRequest.id)
+
+    workInfoLiveData.observeForever { workInfo ->
+        if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+            // El Worker ha tenido éxito, puedes acceder a los datos de salida
+            val acceso = workInfo.outputData.getString("acceso")
+            val matricula = workInfo.outputData.getString("matricula")
+
+            if (acceso == "true") {
+                // Acceso exitoso, realiza las acciones necesarias (navegar a otra pantalla, etc.)
+                Log.d("Acceso", "Sí hubo acceso para la matrícula: $matricula")
+
+
+
+                // Realiza otras acciones necesarias aquí
+            } else {
+                // Acceso fallido, puedes mostrar un mensaje de error si es necesario
+                Log.d("Acceso", "No hubo acceso para la matrícula: $matricula")
+                // Muestra un mensaje de error o realiza otras acciones necesarias aquí
+            }
+        }
+    }
+}
 
     fun realizarAccesoLogin( matricula:String, password:String) {
         val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +

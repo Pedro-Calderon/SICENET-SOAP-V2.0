@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )}
                         composable(Route.PantallaDos.route){ PantallaDos(
+
                             navController = navController
                         )
                         }

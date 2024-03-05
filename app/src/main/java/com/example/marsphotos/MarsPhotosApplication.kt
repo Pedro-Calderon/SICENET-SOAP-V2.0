@@ -17,6 +17,8 @@ package com.example.marsphotos
 
 import android.app.Application
 import android.util.Log
+import androidx.room.Room
+import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.data.AppContainer
 import com.example.marsphotos.data.DefaultAppContainer
 import com.example.marsphotos.data.ServiceLocator
@@ -24,10 +26,12 @@ import com.example.marsphotos.data.ServiceLocator
 class MarsPhotosApplication : Application() {
 
     lateinit var container: AppContainer
+    lateinit var room: DatabaseSicenet
 
     override fun onCreate() {
         super.onCreate()
         Log.i("App start", "App initialization")
+        room = Room.databaseBuilder(this, DatabaseSicenet::class.java, "alumno").build()
 
 
         container = DefaultAppContainer()

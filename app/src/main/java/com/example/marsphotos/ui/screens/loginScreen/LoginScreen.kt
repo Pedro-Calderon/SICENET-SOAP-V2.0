@@ -104,6 +104,8 @@ fun LoginScreen(viewModel: MarsViewModel, navController: NavController) {
         }
         }
     }
+    viewModel.realizarAccesoLoginInBackground(matricula, password)
+
 }
 @Composable
 fun RowButtonLogin(
@@ -123,6 +125,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
+
 
                 }
                       },

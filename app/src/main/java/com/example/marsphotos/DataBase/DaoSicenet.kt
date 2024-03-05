@@ -10,12 +10,17 @@
     @Dao
     interface DaoSicenet {
 
-        //Datos alumno
+        //Datos alumn
         @Query("Select*from Datosdelalumno")
-        suspend fun getDatosAlumno():List<Item>
+        suspend fun getDatosAlumno():List<DatosAlumno>
        @Insert
-       suspend fun insertarAlumno(item:Item)
+       suspend fun insertarAlumno(item:DatosAlumno)
 
+
+        @Query("Select*from Acceso")
+        suspend fun getAcceso():List<Acceso>
+        @Insert
+        suspend fun insertAcceso(item1:Acceso)
 
 
 

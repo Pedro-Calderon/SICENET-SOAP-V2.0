@@ -3,8 +3,11 @@ package com.example.marsphotos.DataBase
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+
+
+
 @Entity(tableName = "Datosdelalumno")
-data class Item(
+data class DatosAlumno(
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="id")
@@ -41,4 +44,16 @@ data class Item(
     val especialidad: String,
     @ColumnInfo(name = "Lineamiento")
     val lineamiento: Int
+)
+
+@Entity(tableName = "Acceso")
+data class Acceso(
+    @PrimaryKey()
+    @ColumnInfo(name="id")
+    val id:Int,
+    @ColumnInfo(name = "Matricula")
+    val itemMatricula: String,
+    @ColumnInfo(name = "acceso")
+    val itemacceso: String
+
 )
