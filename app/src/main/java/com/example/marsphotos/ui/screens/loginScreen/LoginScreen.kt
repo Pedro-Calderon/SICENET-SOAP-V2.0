@@ -1,6 +1,6 @@
-package com.example.marsphotos.ui.screens.loginScreen
+package com.example.marspho
 
-import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,8 +24,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,12 +38,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.marsphotos.R
+import com.example.marsphotos.data.ServiceLocator.context
+import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
 @Composable
-fun LoginScreen(viewModel: MarsViewModel) {
+fun LoginScreen(viewModel: MarsViewModel, navController: NavController) {
 
     val context= LocalContext.current
 
@@ -76,7 +78,7 @@ fun LoginScreen(viewModel: MarsViewModel) {
 
         ) {
             Column (Modifier.padding(16.dp)){
-                    RowImagen()
+                RowImagen()
                 RowMatricula(
                     matricula=matricula,
                     matriculaChange = {
@@ -95,7 +97,8 @@ fun LoginScreen(viewModel: MarsViewModel) {
                     viewModel = viewModel,
                     matricula = matricula,
                     password = password,
-                    isValidPassword = isValidpassword
+                    isValidPassword = isValidpassword,
+                    navController1 =navController
                 )
             }
         }
@@ -107,7 +110,8 @@ fun RowButtonLogin(
     viewModel: MarsViewModel,
     matricula: String,
     password: String,
-    isValidPassword: Boolean
+    isValidPassword: Boolean,
+    navController1: NavController
 ) {
     Row(
         Modifier
@@ -119,6 +123,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
+
                 }
                       },
             enabled = isValidPassword
@@ -126,11 +131,24 @@ fun RowButtonLogin(
             Text(text = "Inciar Sesión")
         }
     }
+    LaunchedEffect(viewModel.accesoState) {
+        val accesoState = viewModel.accesoState
+        if (accesoState != null) {
+            if (accesoState.acceso == "true") {
+                Log.d("Acceso", "Sí hubo $accesoState")
+                navController1.navigate(Route.PantallaDos.route)
+            } else {
+                Log.d("Acceso", "No hubo $accesoState")
+                Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_LONG).show()
+
+            }
+
+        }
+    }
+
 }
 
-fun login(context: Context) {
-    Toast.makeText(context, "Inicio Sesion", Toast.LENGTH_LONG).show()
-}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowMatricula(

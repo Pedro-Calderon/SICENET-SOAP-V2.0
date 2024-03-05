@@ -1,42 +1,46 @@
 package com.example.marsphotos.ui.screens.loginScreen
 
-// En tu archivo .kt correspondiente, por ejemplo, HelloWorldScreen.kt
-package com.example.marsphotos.ui.screens
 
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.marsphotos.ui.theme.MarsPhotosTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.marsphotos.navegacion.Route
 
 @Composable
-fun HelloWorldScreen() {
-    // Contenido de la pantalla
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+fun PantallaDos(navController: NavHostController) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Green)
     ) {
-        // Texto "Hola" con el estilo del tema actual
-        Text(
-            text = "Hola",
-            style = MaterialTheme.typography.h4
-        )
-    }
-}
+        Column(
+            modifier = Modifier.fillMaxSize().align(Alignment.Center),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Pantalla 2",
+                fontSize = 20.sp,
+                color = Color.White
+            )
 
-// Vista previa de la pantalla (opcional)
-@Preview
-@Composable
-fun PreviewHelloWorldScreen() {
-    MarsPhotosTheme {
-        Surface {
-            HelloWorldScreen()
+            Button(
+                onClick = { navController.navigate(Route.LoginScreen.route) }
+            ) {
+                Text(
+                    text = "Ir a pantalla 3"
+                )
+            }
         }
     }
 }

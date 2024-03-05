@@ -33,13 +33,12 @@ sealed interface MarsUiState {
 
 class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : ViewModel() {
     /** The mutable State that stores the status of the most recent request */
-    private var cookies: String? = null
     var marsUiState: MarsUiState by mutableStateOf(MarsUiState.Error)
         private set
     var alumnoProfile: AlumnoAcademicoResponse? by mutableStateOf(null)
         private set
-
-
+    private var _accesoState by mutableStateOf<AccesoLoginResult?>(null)
+    val accesoState: AccesoLoginResult? get() = _accesoState
 
 
 //s18120201, 5f_Wx%
@@ -56,41 +55,57 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                 "</soap:Envelope>"
         val requestBody2= requestBody.toRequestBody(
             "text/xml".toMediaTypeOrNull())
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = ServiceLocator.service.realizarAccesoLogin(requestBody2)
+                if (response.isSuccessful) {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = ServiceLocator.service.realizarAccesoLogin(requestBody2)
-            if (response.isSuccessful) {
+
+
+                    val responseBodyString = response.body()?.string()
+                    // Parsear la respuesta XML a JSON
+                    val startIndex = responseBodyString?.indexOf("{")
+                    val endIndex = responseBodyString?.lastIndexOf("}")
+                    val json = responseBodyString?.substring(startIndex ?: 0, endIndex?.plus(1) ?: 0)
+                    val gson = Gson()
+                    val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
+
+                    _accesoState = accesoLoginResult
+
+                    Log.d("LOGIN JSON", "Response: $accesoLoginResult")
+
+
+                    if (accesoLoginResult.acceso == ("true")){
+                        getAlumnoAcademicoWithLineamiento()
+
+                    }else{
+                        MarsUiState.Error
+                        Log.d("Error: ", "ERROR:Credenciales invalidas ")
+                        _accesoState = AccesoLoginResult(acceso = "false", matricula="")
+
+                    }
 
 
 
-                val responseBodyString = response.body()?.string()
-                // Parsear la respuesta XML a JSON
-                val startIndex = responseBodyString?.indexOf("{")
-                val endIndex = responseBodyString?.lastIndexOf("}")
-                val json = responseBodyString?.substring(startIndex ?: 0, endIndex?.plus(1) ?: 0)
-                val gson = Gson()
-                val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
-                Log.d("LOGIN JSON", "Response: $accesoLoginResult")
-                Log.d("LOGIN XML", "Response: $responseBodyString")
+                }else {
+                    MarsUiState.Error
+                    Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
+                    _accesoState = AccesoLoginResult(acceso = "false", matricula="")
 
-                Log.d("Acceso?", "Response: ${accesoLoginResult.acceso}")
 
-             if (accesoLoginResult.acceso == ("true")){
-                 getAlumnoAcademicoWithLineamiento()
-
-                 }else{
-                 MarsUiState.Error
-                 Log.d("Error: ", "ERROR:Credenciales invalidas ") }
-
+                }
 
             }
-                //(set-cookie, ASP.NET_SessionId=3eui3caqnaloyqndddzv5x21;
-              //  Log.d("LOGIN JSON", "Response: $accesoLoginResult")
-              //  Log.d("LOGIN XML", "Response: $responseBodyString")
-            else {
-                MarsUiState.Error
-                Log.d("Error: ", "ERROR: ${response.errorBody().toString()}") }
+        }catch (e:IOException){
+            MarsUiState.Error
+            Log.d("Error: ", "ERROR: Credenciales incorretas")
+
+            _accesoState = AccesoLoginResult(acceso = "false", matricula="")
+
+
         }
+
+
 
 
     }
@@ -105,7 +120,6 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                "</soap:Envelope>"
        val requestBody3 = requestBody4.toRequestBody(
            "text/xml".toMediaTypeOrNull())
-     //  Log.d("Cookie LocatoAl", LocatorAlumnos.cok)
 
        viewModelScope.launch(Dispatchers.IO) {
 
@@ -120,7 +134,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                    val gson = Gson()
                    val perfilResult = gson.fromJson(json, AlumnoAcademicoResponse::class.java)
 
-                   alumnoProfile = perfilResult  // Actualizar el estado con el resultado del perfil del alumno
+                   alumnoProfile = perfilResult
                     Log.d("Alumno","$perfilResult")
 
 

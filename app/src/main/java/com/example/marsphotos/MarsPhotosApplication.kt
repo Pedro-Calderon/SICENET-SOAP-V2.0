@@ -20,7 +20,6 @@ import android.util.Log
 import com.example.marsphotos.data.AppContainer
 import com.example.marsphotos.data.DefaultAppContainer
 import com.example.marsphotos.data.ServiceLocator
-import com.example.marsphotos.ui.screens.loginScreen.LoginScreen
 
 class MarsPhotosApplication : Application() {
 

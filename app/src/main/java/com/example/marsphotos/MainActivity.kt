@@ -12,9 +12,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.marsphotos.ui.MarsPhotosApp
+import com.example.marspho.LoginScreen
+import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
-import com.example.marsphotos.ui.screens.loginScreen.LoginScreen
+import com.example.marsphotos.ui.screens.loginScreen.PantallaDos
 import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,15 +32,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     val navController= rememberNavController()
-                        NavHost(navController = navController, startDestination = "main"){
-                            composable("main"){
-                                LoginScreen(viewModel = marsViewModel)
-                            }
-                            composable("DatosAlumno"){
-
-                            }
+                    NavHost(navController = navController, startDestination = Route.LoginScreen.route){
+                        composable(Route.LoginScreen.route){ LoginScreen(
+                            viewModel = marsViewModel,
+                            navController = navController
+                        )}
+                        composable(Route.PantallaDos.route){ PantallaDos(
+                            navController = navController
+                        )
                         }
-                    // MarsPhotosApp()
+                    }
+
                 }
             }
         }
