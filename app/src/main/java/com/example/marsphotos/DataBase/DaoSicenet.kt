@@ -14,13 +14,13 @@
         @Query("Select*from Datosdelalumno")
         suspend fun getDatosAlumno():List<DatosAlumno>
        @Insert
-       suspend fun insertarAlumno(item:DatosAlumno)
+       suspend fun insertarAlumno(datosAlumno: DatosAlumno)
 
 
         @Query("Select*from Acceso")
         suspend fun getAcceso():List<Acceso>
         @Insert
-        suspend fun insertAcceso(item1:Acceso)
+        suspend fun insertAcceso(acceso:Acceso)
 
 
 

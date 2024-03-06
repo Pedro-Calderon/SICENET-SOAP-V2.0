@@ -4,8 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 @Database(
     entities = [DatosAlumno::class,Acceso::class],
+    version = 1,
+    exportSchema = false    )
 
-    version = 1)
 
 abstract class DatabaseSicenet : RoomDatabase() {
 

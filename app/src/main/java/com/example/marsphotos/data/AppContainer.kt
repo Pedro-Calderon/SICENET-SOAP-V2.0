@@ -2,17 +2,16 @@
 package com.example.marsphotos.data
 
 import com.example.marsphotos.network.MarsApiService
-import retrofit2.Retrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import retrofit2.Retrofit
 
 /**
  * Dependency Injection container at the application level.
  */
 interface AppContainer {
-    val marsPhotosRepository: MarsPhotosRepository
+     val marsPhotosRepository: MarsPhotosRepository
 
 }
 

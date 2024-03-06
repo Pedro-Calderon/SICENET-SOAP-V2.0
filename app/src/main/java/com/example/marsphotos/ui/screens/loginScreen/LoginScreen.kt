@@ -104,7 +104,6 @@ fun LoginScreen(viewModel: MarsViewModel, navController: NavController) {
         }
         }
     }
-    viewModel.realizarAccesoLoginInBackground(matricula, password)
 
 }
 @Composable
@@ -125,6 +124,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
+                    viewModel.realizarAccesoLoginInBackground(matricula, password)
 
 
                 }
@@ -136,10 +136,12 @@ fun RowButtonLogin(
     }
     LaunchedEffect(viewModel.accesoState) {
         val accesoState = viewModel.accesoState
+
         if (accesoState != null) {
             if (accesoState.acceso == "true") {
                 Log.d("Acceso", "Sí hubo $accesoState")
                 navController1.navigate(Route.PantallaDos.route)
+
             } else {
                 Log.d("Acceso", "No hubo $accesoState")
                 Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_LONG).show()

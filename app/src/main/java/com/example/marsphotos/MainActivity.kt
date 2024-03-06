@@ -38,8 +38,8 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )}
                         composable(Route.PantallaDos.route){ PantallaDos(
-
-                            navController = navController
+                            navController = navController,
+                            viewModel = marsViewModel
                         )
                         }
                     }

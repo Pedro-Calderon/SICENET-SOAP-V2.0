@@ -30,13 +30,21 @@ class MarsPhotosApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
         Log.i("App start", "App initialization")
-        room = Room.databaseBuilder(this, DatabaseSicenet::class.java, "alumno").build()
+        ServiceLocator.context = applicationContext
 
+        room = Room.databaseBuilder(ServiceLocator.context, DatabaseSicenet::class.java, "SICENET").build()
+        Log.i("App start 2", "App initialization con base dedatos")
 
+        // Verificar si la base de datos está abierta
+        if (room.isOpen) {
+            Log.i("App start 2", "App initialization con base de datos")
+        } else {
+            Log.e("App start 2", "Error al inicializar la base de datos")
+        }
         container = DefaultAppContainer()
 
-        ServiceLocator.context = applicationContext
 
        // LocatorAlumnos.context=applicationContext
     }

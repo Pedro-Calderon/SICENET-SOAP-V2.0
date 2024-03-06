@@ -71,6 +71,7 @@ dependencies {
     //Work
     implementation ("androidx.work:work-runtime:2.9.0")
 
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
 
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
@@ -87,6 +88,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.compose.runtime:runtime:1.6.2")
 
     // Retrofit
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")

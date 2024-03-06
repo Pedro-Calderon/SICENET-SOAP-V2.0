@@ -19,6 +19,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
+import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
 import com.example.marsphotos.data.ServiceLocator.context
@@ -28,10 +29,12 @@ import com.example.marsphotos.model.MarsPhoto
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.IOException
+
 
 sealed interface MarsUiState {
     data class Success(val photos: String) : MarsUiState
@@ -40,59 +43,111 @@ sealed interface MarsUiState {
 }
 
 class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : ViewModel() {
-    /** The mutable State that stores the status of the most recent request */
     var marsUiState: MarsUiState by mutableStateOf(MarsUiState.Error)
         private set
     var alumnoProfile: AlumnoAcademicoResponse? by mutableStateOf(null)
         private set
-    private var _accesoState by mutableStateOf<AccesoLoginResult?>(null)
+     var _accesoState by mutableStateOf<AccesoLoginResult?>(null)
     val accesoState: AccesoLoginResult? get() = _accesoState
 
 
+
+
+
+
+
 //s18120201, 5f_Wx%
-fun realizarAccesoLoginInBackground(matricula: String, password: String) {
-    val inputData = workDataOf(
-        "matricula" to matricula,
-        "password" to password
-    )
-
-    val constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
-        .build()
-
-    val accesoLoginWorkRequest =
-        OneTimeWorkRequestBuilder<AccesoLoginWorker>()
-            .setInputData(inputData)
-            .setConstraints(constraints)
-            .build()
-
-    WorkManager.getInstance(context).enqueue(accesoLoginWorkRequest)
-
-    // Observa los resultados del Worker utilizando LiveData
-    val workInfoLiveData = WorkManager.getInstance(context)
-        .getWorkInfoByIdLiveData(accesoLoginWorkRequest.id)
-
-    workInfoLiveData.observeForever { workInfo ->
-        if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
-            // El Worker ha tenido éxito, puedes acceder a los datos de salida
-            val acceso = workInfo.outputData.getString("acceso")
-            val matricula = workInfo.outputData.getString("matricula")
-
-            if (acceso == "true") {
-                // Acceso exitoso, realiza las acciones necesarias (navegar a otra pantalla, etc.)
-                Log.d("Acceso", "Sí hubo acceso para la matrícula: $matricula")
 
 
+    fun realizarAccesoLoginInBackground(matricula: String, password: String) {
+        try {
+            // Configura los datos de entrada para el Worker
+            val inputData = workDataOf(
+                "matricula" to matricula,
+                "password" to password
+            )
 
-                // Realiza otras acciones necesarias aquí
-            } else {
-                // Acceso fallido, puedes mostrar un mensaje de error si es necesario
-                Log.d("Acceso", "No hubo acceso para la matrícula: $matricula")
-                // Muestra un mensaje de error o realiza otras acciones necesarias aquí
+            // Configura las restricciones para el Worker
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            // Crea una instancia de AccesoLoginWorker con el trabajo único
+            val accesoLoginWorkRequest =
+                OneTimeWorkRequestBuilder<AccesoLoginWorker>()
+                    .setInputData(inputData)
+                    .setConstraints(constraints)
+                    .build()
+
+            // Obtiene una instancia de WorkManager y encola el trabajo
+            WorkManager.getInstance(context).enqueue(accesoLoginWorkRequest)
+
+            // Observa los resultados del Worker utilizando LiveData
+            val workInfoLiveData = WorkManager.getInstance(context)
+                .getWorkInfoByIdLiveData(accesoLoginWorkRequest.id)
+
+            // Registra un observador para los resultados del Worker
+            workInfoLiveData.observeForever { workInfo ->
+                if (workInfo != null) {
+                    when (workInfo.state) {
+                        WorkInfo.State.SUCCEEDED -> {
+                            // El Worker ha tenido éxito, accede a los datos de salida
+                            val acceso = workInfo.outputData.getString("acceso")
+                            val matricula = workInfo.outputData.getString("matricula")
+                            Log.d("Acceso viewmodel", "Sí hubo acceso para la matrícula: $matricula,$acceso")
+
+                            if (acceso == "true") {
+                                // Acceso exitoso, realiza las acciones necesarias
+
+                                // Configura los datos de entrada para el siguiente Worker
+                                val almacenarDatosInputData = workDataOf(
+                                    "acceso" to acceso,
+                                    "matricula" to matricula
+                                )
+
+                                // Crea una instancia de AlmacenarDatosLocalWorker
+                                val almacenarDatosLocalWorkRequest =
+                                    OneTimeWorkRequestBuilder<AlmacenarDatosLocalWorker>()
+                                        .setInputData(almacenarDatosInputData)
+                                        .setConstraints(constraints)
+                                        .build()
+
+                                // Encola el trabajo de AlmacenarDatosLocalWorker
+                                WorkManager.getInstance(context).enqueue(almacenarDatosLocalWorkRequest)
+
+                            } else {
+                                // Acceso fallido, muestra un mensaje de error o realiza otras acciones necesarias
+                                Log.d("Acceso Viewmodel", "No hubo acceso para la matrícula: $matricula")
+                            }
+                        }
+                        WorkInfo.State.FAILED -> {
+                            // El Worker ha fallado, maneja el error si es necesario
+                            Log.e("Acceso viewmodel catch", "Error en AccesoLoginWorker: ${workInfo.outputData.getString("error")}")
+                        }
+                        // Puedes manejar otros estados del Worker según sea necesario
+                        else -> {
+                            Log.e("Acceso viewmodel catch 2", "Error en AccesoLoginWorker: ${workInfo.outputData.getString("error")}")
+                        }
+                    }
+                }
             }
+
+        } catch (e: Exception) {
+            // Maneja cualquier excepción que pueda ocurrir al configurar el trabajo
+            Log.e("Acceso", "Error en realizarAccesoLoginInBackground: $e")
+            // Muestra un mensaje de error o realiza otras acciones necesarias
         }
     }
-}
+
+
+
+
+
+
+
+
+
+
 
     fun realizarAccesoLogin( matricula:String, password:String) {
         val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
@@ -106,56 +161,54 @@ fun realizarAccesoLoginInBackground(matricula: String, password: String) {
                 "</soap:Envelope>"
         val requestBody2= requestBody.toRequestBody(
             "text/xml".toMediaTypeOrNull())
-        try {
-            viewModelScope.launch(Dispatchers.IO) {
-                val response = ServiceLocator.service.realizarAccesoLogin(requestBody2)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = ServiceLocator.service.realizarAccesoLogin(
+                    requestBody.toRequestBody("text/xml".toMediaTypeOrNull())
+                )
+
                 if (response.isSuccessful) {
-
-
-
                     val responseBodyString = response.body()?.string()
-                    // Parsear la respuesta XML a JSON
                     val startIndex = responseBodyString?.indexOf("{")
                     val endIndex = responseBodyString?.lastIndexOf("}")
                     val json = responseBodyString?.substring(startIndex ?: 0, endIndex?.plus(1) ?: 0)
+
                     val gson = Gson()
                     val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
 
-                    _accesoState = accesoLoginResult
+                    withContext(Dispatchers.Main) {
+                        // Actualizar el estado de la interfaz de usuario aquí
+                        _accesoState = accesoLoginResult
 
-                    Log.d("LOGIN JSON", "Response: $accesoLoginResult")
-
-
-                    if (accesoLoginResult.acceso == ("true")){
-                        getAlumnoAcademicoWithLineamiento()
-
-                    }else{
-                        MarsUiState.Error
-                        Log.d("Error: ", "ERROR:Credenciales invalidas ")
-                        _accesoState = AccesoLoginResult(acceso = "false", matricula="")
-
+                        if (accesoLoginResult.acceso == "true") {
+                            getAlumnoAcademicoWithLineamiento()
+                        } else {
+                            // Manejar el caso de acceso fallido
+                            // MarsUiState.Error, Log, o mostrar un mensaje de error
+                            Log.d("Error: ", "ERROR: Credenciales inválidas")
+                        }
                     }
-
-
-
-                }else {
-                    MarsUiState.Error
-                    Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
-                    _accesoState = AccesoLoginResult(acceso = "false", matricula="")
-
-
+                } else {
+                    // Manejar el caso de respuesta no exitosa
+                    withContext(Dispatchers.Main) {
+                        // MarsUiState.Error, Log, o mostrar un mensaje de error
+                        Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
+                    }
                 }
-
+            } catch (e: IOException) {
+                // Manejar el caso de IOException
+                withContext(Dispatchers.Main) {
+                    // MarsUiState.Error, Log, o mostrar un mensaje de error
+                    Log.d("Error: ", "ERROR: Credenciales incorrectas")
+                }
+            } catch (e: Exception) {
+                // Manejar otras excepciones inesperadas
+                withContext(Dispatchers.Main) {
+                    // MarsUiState.Error, Log, o mostrar un mensaje de error
+                    Log.e("Error: ", "ERROR inesperado: Credenciales incorrectas")
+                }
             }
-        }catch (e:IOException){
-            MarsUiState.Error
-            Log.d("Error: ", "ERROR: Credenciales incorretas")
-
-            _accesoState = AccesoLoginResult(acceso = "false", matricula="")
-
-
         }
-
 
 
 
@@ -265,6 +318,7 @@ fun realizarAccesoLoginInBackground(matricula: String, password: String) {
 
      */
 
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -274,5 +328,6 @@ fun realizarAccesoLoginInBackground(matricula: String, password: String) {
             }
         }
     }
+
 
 }

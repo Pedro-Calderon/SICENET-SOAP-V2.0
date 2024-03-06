@@ -34,8 +34,6 @@ data class DatosAlumno(
     val inscrito: Boolean,
     @ColumnInfo(name = "Estatus")
     val estatus: String,
-    @ColumnInfo(name = "SemActual")
-    val semActual: Int,
     @ColumnInfo(name = "CdtosAcumulados")
     val cdtosAcumulados: Int,
     @ColumnInfo(name = "CdtosActuales")
