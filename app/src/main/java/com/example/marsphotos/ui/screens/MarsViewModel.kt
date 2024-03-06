@@ -74,6 +74,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     var datosAlumnoSinConexion by mutableStateOf<DatosAlumno?>(null)
         private set
 
+    private val _calificacionesState = mutableStateOf<List<Calificaciones>>(emptyList())
+    val calificacionesState: State<List<Calificaciones>> = _calificacionesState
+
+
 
 //s18120201, 5f_Wx%
 
@@ -86,10 +90,6 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         WorkManager.getInstance(context)
             .enqueue(calificacionesWorkRequest)
     }
-
-
-
-
 
     fun realizarAccesoLoginInBackground(matricula: String, password: String) {
         try {
@@ -331,14 +331,58 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
 
+    fun getCalisinConexion(){
+        val database = DatabaseSicenet.invoke(ServiceLocator.context)
+        viewModelScope.launch {
+            try {
+                // Lógica para obtener las calificaciones de la base de datos
+                val calificacionesEntities = database.DaoSicenet().getAllCalificaciones()
 
+                // Convierte las entidades a la clase de datos que necesitas mostrar en la UI
+                val calificaciones = calificacionesEntities.map { entity ->
+                    Calificaciones(
+                        entity.materia,
+                        entity.observaciones,
+                        entity.c1,
+                        entity.c2,
+                        entity.c3,
+                        entity.c4,
+                        entity.c5,
+                        entity.c6,
+                        entity.c7,
+                        entity.c8,
+                        entity.c9,
+                        entity.c10,
+                        entity.c11,
+                        entity.c12,
+                        entity.c13,
+                        entity.UnidadesActivas,
+                        entity.grupo
+                    )
+                }
+
+                _calificacionesState.value = calificaciones
+                Log.d("CaliSinCon","$calificaciones")
+            } catch (e: Exception) {
+                // Manejar las excepciones
+                Log.e("MarsViewModel", "Error al obtener calificaciones de la base de datos: $e")
+            }
+        }
+    }
 
     fun getCalifUnidadesByAlumnoResponse() {
-        val requestBodyCal = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "  <soap:Body>\n" +
-                "    <getCalifUnidadesByAlumno xmlns=\"http://tempuri.org/\" />\n" +
-                "  </soap:Body>\n" +
-                "</soap:Envelope>"
+        val networkUtils = NetworkUtils(context) // 'this' representa el contexto de tu actividad o fragmento
+
+
+        if (networkUtils.isNetworkAvailable())
+    {
+
+        val requestBodyCal =
+            "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                    "  <soap:Body>\n" +
+                    "    <getCalifUnidadesByAlumno xmlns=\"http://tempuri.org/\" />\n" +
+                    "  </soap:Body>\n" +
+                    "</soap:Envelope>"
 
         val requestBodyCali = requestBodyCal.toRequestBody("text/xml".toMediaTypeOrNull())
 
@@ -353,7 +397,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
                     // Parsear la respuesta XML usando SimpleXML
                     val serializer = Persister()
-                    val soapEnvelope = serializer.read(SoapEnveloCalificacionUni::class.java, responseBodyString)
+                    val soapEnvelope =
+                        serializer.read(SoapEnveloCalificacionUni::class.java, responseBodyString)
                     // Obtener el objeto específico de la respuesta
                     val califUnidadesResponse = soapEnvelope.body.getCalifUnidadesByAlumnoResponse
 
@@ -362,15 +407,16 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                     Log.d("Calificaciones", califUnidadesResult)
 
                     // Deserializar la respuesta JSON utilizando kotlinx.serialization
-                    val calificaciones: List<Calificaciones> = Json.decodeFromString(califUnidadesResult.orEmpty())
+                    val calificaciones: List<Calificaciones> =
+                        Json.decodeFromString(califUnidadesResult.orEmpty())
                     _listaCalificaciones.value = calificaciones
 
                     // Acceder a los datos dentro de la lista de alumnos
                     for (calificacion in calificaciones) {
                         Log.d("Calificaciones", " ${calificacion}")
                     }
+                    iniciarCalificacionesWorker()
                     MarsUiState.Success(califUnidadesResult)
-
 
 
                 } else {
@@ -381,6 +427,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                 Log.d("Error Cali", "$e")
             }
         }
+    }else
+    {
+        getCalisinConexion()
+    }
     }
 
 

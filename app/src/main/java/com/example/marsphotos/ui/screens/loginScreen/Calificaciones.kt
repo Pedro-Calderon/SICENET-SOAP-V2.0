@@ -29,6 +29,7 @@ import com.example.marsphotos.ui.screens.MarsViewModel
 @Composable
 fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
     val calificaciones by remember { viewModel.listaCalificaciones }
+    val calificcionesSinCon by remember{viewModel.calificacionesState}
 
     LazyColumn(
         modifier = Modifier
@@ -47,6 +48,9 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
         items(calificaciones) { calificacion ->
             CalificacionItem(calificacion = calificacion)
         }
+        items(calificcionesSinCon) { calificcionesSinCon ->
+            CalificacionItem(calificacion = calificcionesSinCon)
+        }
 
         item {
             Button(
@@ -62,6 +66,44 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
 
 @Composable
 fun CalificacionItem(calificacion: Calificaciones) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(
+            text = "Materia: ${calificacion.Materia}",
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
+
+        for (i in 1..13) {
+            val calificacionValue = calificacion.getCalificacion("C$i")
+            if (calificacionValue != null) {
+                Text(
+                    text = "C$i: $calificacionValue",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+        }
+
+        Text(
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Observación: ")
+                }
+                append("${calificacion.Observaciones}\n")
+            },
+            fontSize = 16.sp,
+            color = Color.Black
+        )
+    }
+}
+
+
+@Composable
+fun CalificacionItemSinCon(calificacion: Calificaciones) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

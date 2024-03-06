@@ -75,6 +75,7 @@ class AlmacenarCalificacionesWorker(appContext: Context, workerParams: WorkerPar
                 calificacion.C11,
                 calificacion.C12,
                 calificacion.C13,
+                calificacion.UnidadesActivas,
                 calificacion.Grupo
             ))
             id++

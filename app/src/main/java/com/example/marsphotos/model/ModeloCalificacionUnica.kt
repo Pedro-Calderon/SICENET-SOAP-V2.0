@@ -49,7 +49,7 @@ data class Calificaciones(
     val C3: String?,
     val C2: String?,
     val C1: String?,
-    val UnidadesActivas: String?,
+    val UnidadesActivas:String?,
     val Materia: String?,
     val Grupo: String?
 )

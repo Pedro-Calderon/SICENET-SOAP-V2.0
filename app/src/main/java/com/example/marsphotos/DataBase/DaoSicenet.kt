@@ -38,7 +38,8 @@
         suspend fun getCalificacionesCount(): Int
         @Query("DELETE FROM Calificaciones")
         suspend fun clearCalificacionesTable()
-
+        @Query("SELECT * FROM Calificaciones")
+        suspend fun getAllCalificaciones(): List<CalificacionesEntity>
 
     }
 

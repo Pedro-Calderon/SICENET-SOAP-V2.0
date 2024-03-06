@@ -78,5 +78,6 @@ data class CalificacionesEntity(
     val c11: String?,
     val c12: String?,
     val c13: String?,
+    val UnidadesActivas:String?,
     val grupo:String?
 )
