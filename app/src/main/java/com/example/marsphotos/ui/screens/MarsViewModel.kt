@@ -20,10 +20,14 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.example.marsphotos.DataBase.Acceso
+import com.example.marsphotos.DataBase.DatabaseSicenet
+import com.example.marsphotos.DataBase.DatosAlumno
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
 import com.example.marsphotos.Workers.CalificacionesWorker
+import com.example.marsphotos.Workers.NetworkUtils
 import com.example.marsphotos.data.LocatorCalificacion
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
@@ -56,6 +60,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         private set
     var alumnoProfile: AlumnoAcademicoResponse? by mutableStateOf(null)
         private set
+
      var _accesoState by mutableStateOf<AccesoLoginResult?>(null)
     val accesoState: AccesoLoginResult? get() = _accesoState
 
@@ -64,7 +69,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     val listaCalificaciones: State<List<Calificaciones>> = _listaCalificaciones
 
 
-
+    var accesoSinConexion by mutableStateOf<Acceso?>(null)
+        private set
+    var datosAlumnoSinConexion by mutableStateOf<DatosAlumno?>(null)
+        private set
 
 
 //s18120201, 5f_Wx%
@@ -164,71 +172,106 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     }
 
     fun realizarAccesoLogin( matricula:String, password:String) {
-        val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "  <soap:Body>\n" +
-                "    <accesoLogin xmlns=\"http://tempuri.org/\">\n" +
-                "      <strMatricula>$matricula</strMatricula>\n" +
-                "      <strContrasenia>$password</strContrasenia>\n" +
-                "      <tipoUsuario>ALUMNO</tipoUsuario>\n" +
-                "    </accesoLogin>\n" +
-                "  </soap:Body>\n" +
-                "</soap:Envelope>"
+        val networkUtils = NetworkUtils(context) // 'this' representa el contexto de tu actividad o fragmento
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = ServiceLocator.service.realizarAccesoLogin(
-                    requestBody.toRequestBody("text/xml".toMediaTypeOrNull())
-                )
+        if (networkUtils.isNetworkAvailable()) {
+            val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                    "  <soap:Body>\n" +
+                    "    <accesoLogin xmlns=\"http://tempuri.org/\">\n" +
+                    "      <strMatricula>$matricula</strMatricula>\n" +
+                    "      <strContrasenia>$password</strContrasenia>\n" +
+                    "      <tipoUsuario>ALUMNO</tipoUsuario>\n" +
+                    "    </accesoLogin>\n" +
+                    "  </soap:Body>\n" +
+                    "</soap:Envelope>"
 
-                if (response.isSuccessful) {
-                    val responseBodyString = response.body()?.string()
-                    val startIndex = responseBodyString?.indexOf("{")
-                    val endIndex = responseBodyString?.lastIndexOf("}")
-                    val json = responseBodyString?.substring(startIndex ?: 0, endIndex?.plus(1) ?: 0)
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val response = ServiceLocator.service.realizarAccesoLogin(
+                        requestBody.toRequestBody("text/xml".toMediaTypeOrNull())
+                    )
 
-                    val gson = Gson()
-                    val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
+                    if (response.isSuccessful) {
+                        val responseBodyString = response.body()?.string()
+                        val startIndex = responseBodyString?.indexOf("{")
+                        val endIndex = responseBodyString?.lastIndexOf("}")
+                        val json = responseBodyString?.substring(startIndex ?: 0, endIndex?.plus(1) ?: 0)
 
-                    withContext(Dispatchers.Main) {
-                        // Actualizar el estado de la interfaz de usuario aquí
-                        _accesoState = accesoLoginResult
+                        val gson = Gson()
+                        val accesoLoginResult = gson.fromJson(json, AccesoLoginResult::class.java)
 
-                        if (accesoLoginResult.acceso == "true") {
-                            getAlumnoAcademicoWithLineamiento()
-                        } else {
-                            // Manejar el caso de acceso fallido
+                        withContext(Dispatchers.Main) {
+                            // Actualizar el estado de la interfaz de usuario aquí
+                            _accesoState = accesoLoginResult
+
+                            if (accesoLoginResult.acceso == "true") {
+                                getAlumnoAcademicoWithLineamiento()
+                                realizarAccesoLoginInBackground(matricula,password)
+
+                            } else {
+                                // Manejar el caso de acceso fallido
+                                // MarsUiState.Error, Log, o mostrar un mensaje de error
+                                Log.d("Error: ", "ERROR: Credenciales inválidas")
+                            }
+                        }
+                    } else {
+                        // Manejar el caso de respuesta no exitosa
+                        withContext(Dispatchers.Main) {
                             // MarsUiState.Error, Log, o mostrar un mensaje de error
-                            Log.d("Error: ", "ERROR: Credenciales inválidas")
+                            Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
                         }
                     }
-                } else {
-                    // Manejar el caso de respuesta no exitosa
+                } catch (e: IOException) {
+                    // Manejar el caso de IOException
                     withContext(Dispatchers.Main) {
                         // MarsUiState.Error, Log, o mostrar un mensaje de error
-                        Log.d("Error: ", "ERROR: ${response.errorBody().toString()}")
+                        Log.d("Error: ", "ERROR: Credenciales incorrectas")
+
+                    }
+                } catch (e: Exception) {
+                    // Manejar otras excepciones inesperadas
+                    withContext(Dispatchers.Main) {
+                        // MarsUiState.Error, Log, o mostrar un mensaje de error
+                        Log.e("Error: ", "ERROR inesperado: Credenciales incorrectas")
                     }
                 }
-            } catch (e: IOException) {
-                // Manejar el caso de IOException
-                withContext(Dispatchers.Main) {
-                    // MarsUiState.Error, Log, o mostrar un mensaje de error
-                    Log.d("Error: ", "ERROR: Credenciales incorrectas")
-                }
-            } catch (e: Exception) {
-                // Manejar otras excepciones inesperadas
-                withContext(Dispatchers.Main) {
-                    // MarsUiState.Error, Log, o mostrar un mensaje de error
-                    Log.e("Error: ", "ERROR inesperado: Credenciales incorrectas")
-                }
             }
+
+
+        } else {
+            //codigo sin conexion
+            LoginSinConexion()
+
         }
 
 
 
     }
 
+    fun LoginSinConexion() {
+        val database = DatabaseSicenet.invoke(ServiceLocator.context)
+        viewModelScope.launch(Dispatchers.IO) {
 
-   fun getAlumnoAcademicoWithLineamiento() {
+            val accesoDesconexion = database.DaoSicenet().getAcceso()
+            if (accesoDesconexion != null && accesoDesconexion.itemacceso == "true") {
+                accesoSinConexion = accesoDesconexion
+                val datosSinConexion=database.DaoSicenet().getDatosAlumno()
+                if (datosSinConexion != null) {
+                    datosAlumnoSinConexion=datosSinConexion
+                }
+                Log.d("AccesoSinConexion", "$datosSinConexion")
+
+
+            } else {
+                Log.d("AccesoSinConexion", "No hay datos de acceso")
+            }
+        }
+    }
+
+
+
+
+    fun getAlumnoAcademicoWithLineamiento() {
        val requestBody4 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                "  <soap:Body>\n" +
@@ -339,6 +382,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             }
         }
     }
+
+
 
 
 

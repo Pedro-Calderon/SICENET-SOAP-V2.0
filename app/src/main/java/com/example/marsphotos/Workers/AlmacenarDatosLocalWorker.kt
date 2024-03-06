@@ -30,7 +30,7 @@ class AlmacenarDatosLocalWorker(
             // Obtener los datos de acceso y perfil del resultado del primer Worker
             val acceso = inputData.getString("acceso")
             val matricula = inputData.getString("matricula")
-            Log.e("AlmacenarDatosLocal", "error en :${acceso.isNullOrEmpty()},$matricula ")
+            //Log.e("AlmacenarDatosLocal", "error en :${acceso.isNullOrEmpty()},$matricula ")
 
 
             if (!acceso.isNullOrEmpty() && !matricula.isNullOrEmpty()) {

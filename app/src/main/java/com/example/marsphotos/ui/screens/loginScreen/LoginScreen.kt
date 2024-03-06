@@ -125,7 +125,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
-                    viewModel.realizarAccesoLoginInBackground(matricula, password)
+                    //viewModel.realizarAccesoLoginInBackground(matricula, password)
 
                 }
                       },
@@ -134,8 +134,10 @@ fun RowButtonLogin(
             Text(text = "Inciar Sesión")
         }
     }
-    LaunchedEffect(viewModel.accesoState) {
+
+    LaunchedEffect(viewModel.accesoState,viewModel.accesoSinConexion) {
         val accesoState = viewModel.accesoState
+        val accesoSinConexion=viewModel.accesoSinConexion
 
         if (accesoState != null) {
             if (accesoState.acceso == "true") {
@@ -150,6 +152,16 @@ fun RowButtonLogin(
 
             }
 
+        }
+        if(accesoSinConexion!=null){
+            if (accesoSinConexion.itemacceso=="true"){
+                Log.d("Acceso Con", "Sí hubo $accesoSinConexion")
+                navController1.navigate(Route.PantallaDos.route)
+
+            }else{
+                Log.d("Acceso Sin Con", "No hubo $accesoSinConexion")
+                Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

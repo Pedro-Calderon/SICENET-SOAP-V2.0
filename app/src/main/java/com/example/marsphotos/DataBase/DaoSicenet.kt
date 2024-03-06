@@ -12,7 +12,7 @@
 
         //Datos alumn
         @Query("Select*from Datosdelalumno")
-        suspend fun getDatosAlumno():List<DatosAlumno>
+        suspend fun getDatosAlumno():DatosAlumno?
 
        @Insert
        suspend fun insertarAlumno(datosAlumno: DatosAlumno)
@@ -22,8 +22,9 @@
         suspend fun clearDatosAlumno()
 
         //acceso
-        @Query("Select*from Acceso")
-        suspend fun getAcceso():List<Acceso>
+        @Query("SELECT * FROM Acceso WHERE id = 1")
+        suspend fun getAcceso(): Acceso?
+
         @Insert
         suspend fun insertAcceso(acceso:Acceso)
         @Query("SELECT COUNT(*) FROM Acceso")
@@ -37,5 +38,7 @@
         suspend fun getCalificacionesCount(): Int
         @Query("DELETE FROM Calificaciones")
         suspend fun clearCalificacionesTable()
+
+
     }
 
