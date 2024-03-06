@@ -6,8 +6,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
@@ -18,6 +33,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.marsphotos.navegacion.Route
@@ -26,7 +42,7 @@ import com.example.marsphotos.ui.screens.MarsViewModel
 @Composable
 fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
     val alumno = rememberUpdatedState(newValue = viewModel.alumnoProfile)
-    val alumnoSinCon= rememberUpdatedState(newValue = viewModel.datosAlumnoSinConexion)
+
 
     Box(
         modifier = Modifier
@@ -36,6 +52,7 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(16.dp)
                 .align(Alignment.Center),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -43,194 +60,83 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
             Text(
                 text = "Datos del Alumno",
                 fontSize = 30.sp,
-                color = Color.Black
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
 
-
-                alumno.value?.let { alumno ->
-                    // Muestra los datos según sea necesario
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Matrícula: ")
-                            }
-                            append("${alumno.matricula}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Nombre: ")
-                            }
-                            append("${alumno.nombre}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Fecha de Reinscripción: ")
-                            }
-                            append("${alumno.fechaReins}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Modelo Educativo: ")
-                            }
-                            append("${alumno.modEducativo}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Adeudo: ")
-                            }
-                            append("${alumno.adeudo}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("URL de Foto: ")
-                            }
-                            append("${alumno.urlFoto}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Descripción de Adeudo: ")
-                            }
-                            append("${alumno.adeudoDescripcion}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Inscrito: ")
-                            }
-                            append("${alumno.inscrito}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Estatus: ")
-                            }
-                            append("${alumno.estatus}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Semestre Actual: ")
-                            }
-                            append("${alumno.semActual}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Créditos Acumulados: ")
-                            }
-                            append("${alumno.cdtosAcumulados}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Créditos Actuales: ")
-                            }
-                            append("${alumno.cdtosActuales}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Especialidad: ")
-                            }
-                            append("${alumno.especialidad}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Carrera: ")
-                            }
-                            append("${alumno.carrera}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Lineamiento: ")
-                            }
-                            append("${alumno.lineamiento}\n")
-                        },
-                        fontSize = 16.sp,
-                        color = Color.Black
-                    )
-
+            alumno.value?.let { alumno ->
+                // Muestra los datos según sea necesario
+                Surface (
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.White,
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column (modifier = Modifier.padding(16.dp)) {
+                        DatosItem("Matricula:", alumno.matricula)
+                        DatosItem("Nombre:", alumno.nombre)
+                        DatosItem("Fecha de Reinscripción:", alumno.fechaReins)
+                        DatosItem("Modelo Educativo:", alumno.modEducativo.toString())
+                        DatosItem("Adeudo:", alumno.adeudo.toString())
+                        DatosItem("URL de Foto:", alumno.urlFoto)
+                        DatosItem("Descripción de Adeudo:", alumno.adeudoDescripcion)
+                        DatosItem("Inscrito:", alumno.inscrito.toString())
+                        DatosItem("Estatus:", alumno.estatus)
+                        DatosItem("Semestre Actual:", alumno.semActual.toString())
+                        DatosItem("Créditos Acumulados:", alumno.cdtosAcumulados.toString())
+                        DatosItem("Créditos Actuales:", alumno.cdtosActuales.toString())
+                        DatosItem("Especialidad:", alumno.especialidad)
+                        DatosItem("Carrera:", alumno.carrera)
+                        DatosItem("Lineamiento:", alumno.lineamiento.toString())
+                    }
                 }
-
-                alumnoSinCon.value?.let { alumnoSinCon ->
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Matrícula: ")
-                            }
-                            append("${alumnoSinCon.itemMatricula}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Nombre: ")
-                            }
-                            append("${alumnoSinCon.itemNombre}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Fecha de Reinscripción: ")
-                            }
-                            append("${alumnoSinCon.fechaReins}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Modelo Educativo: ")
-                            }
-                            append("${alumnoSinCon.modEducativo}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Adeudo: ")
-                            }
-                            append("${alumnoSinCon.adeudo}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("URL de Foto: ")
-                            }
-                            append("${alumnoSinCon.urlFoto}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Descripción de Adeudo: ")
-                            }
-                            append("${alumnoSinCon.adeudoDescripcion}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Inscrito: ")
-                            }
-                            append("${alumnoSinCon.inscrito}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Estatus: ")
-                            }
-                            append("${alumnoSinCon.estatus}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Semestre Actual: ")
-                            }
-                            append("${alumnoSinCon.itemSemestre}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Créditos Acumulados: ")
-                            }
-                            append("${alumnoSinCon.cdtosAcumulados}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Créditos Actuales: ")
-                            }
-                            append("${alumnoSinCon.cdtosActuales}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Especialidad: ")
-                            }
-                            append("${alumnoSinCon.especialidad}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Carrera: ")
-                            }
-                            append("${alumnoSinCon.itemCarrera}\n")
-
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Lineamiento: ")
-                            }
-                            append("${alumnoSinCon.lineamiento}\n")
-                        },
-                        fontSize = 16.sp,
-                        color = Color.Black
-                    )
-
-                }
-
-
-
-
-
-            Button(
-                onClick = {
-                    navController.navigate(Route.Calificaciones.route)
-                    viewModel.getCalifUnidadesByAlumnoResponse()
-                    viewModel.iniciarCalificacionesWorker()}
-            ) {
-                Text(
-                    text = "Ir a Calificacione"
-                )
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            BottomNavigationBar(navController = navController)
         }
     }
 }
+
+@Composable
+fun DatosItem(label: String, value: String) {
+    Row(
+        modifier = Modifier.padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray,
+            modifier = Modifier.width(150.dp)
+        )
+        Text(
+            text = value,
+            color = Color.Black,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun BottomNavigationBar(navController: NavHostController) {
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 8.dp
+    ) {
+        BottomNavigationItem(
+            selected = false,
+            onClick = { /* Handle navigation */ },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+            label = { Text("Profile")}
+        )
+        BottomNavigationItem(
+            selected = false,
+            onClick = { /* Handle navigation */ },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+            label = { Text("Home") }
+        )
+        // Agrega más elementos según tus necesidades
+    }
+}
+
