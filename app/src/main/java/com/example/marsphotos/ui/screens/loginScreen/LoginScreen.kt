@@ -125,7 +125,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
-                    //viewModel.realizarAccesoLoginInBackground(matricula, password)
+                    viewModel.realizarAccesoLoginInBackground(matricula, password)
 
                 }
                       },
@@ -141,7 +141,7 @@ fun RowButtonLogin(
             if (accesoState.acceso == "true") {
                 Log.d("Acceso", "Sí hubo $accesoState")
                 viewModel.getCalifUnidadesByAlumnoResponse()
-
+                viewModel.iniciarCalificacionesWorker()
                 navController1.navigate(Route.PantallaDos.route)
 
             } else {

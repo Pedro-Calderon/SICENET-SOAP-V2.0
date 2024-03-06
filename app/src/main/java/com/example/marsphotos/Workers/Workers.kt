@@ -41,6 +41,8 @@ class AccesoLoginWorker(
                     // Llamada a getAlumnoAcademicoWithLineamiento después de un acceso exitoso
                     runBlocking {
                         getAlumnoAcademicoWithLineamiento()
+
+
                     }
 
                     val outputData = workDataOf(
@@ -126,12 +128,23 @@ class AccesoLoginWorker(
 
                     Log.d("Alumno work", "$perfilResult")
 
-                    // Crear el estado de éxito con los datos obtenidos
                     MarsUiState.Success(
                         buildString {
                             appendLine("Nombre: ${perfilResult.nombre}")
                             appendLine("Matrícula: ${perfilResult.matricula}")
-                            // ... (otros campos)
+                            appendLine("Fecha de Reinscripción: ${perfilResult.fechaReins}")
+                            appendLine("Modelo Educativo: ${perfilResult.modEducativo}")
+                            appendLine("Adeudo: ${perfilResult.adeudo}")
+                            appendLine("URL de Foto: ${perfilResult.urlFoto}")
+                            appendLine("Descripción de Adeudo: ${perfilResult.adeudoDescripcion}")
+                            appendLine("Inscrito: ${perfilResult.inscrito}")
+                            appendLine("Estatus: ${perfilResult.estatus}")
+                            appendLine("Semestre Actual: ${perfilResult.semActual}")
+                            appendLine("Créditos Acumulados: ${perfilResult.cdtosAcumulados}")
+                            appendLine("Créditos Actuales: ${perfilResult.cdtosActuales}")
+                            appendLine("Especialidad: ${perfilResult.especialidad}")
+                            appendLine("Carrera: ${perfilResult.carrera}")
+                            appendLine("Lineamiento: ${perfilResult.lineamiento}")
                         }
                     )
                 } else {
@@ -148,4 +161,5 @@ class AccesoLoginWorker(
         }
     }
 
-}
+    }
+

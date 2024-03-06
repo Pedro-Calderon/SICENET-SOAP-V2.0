@@ -113,6 +113,10 @@ class AlmacenarDatosLocalWorker(
         val acceso2=Acceso(1,acceso1.matricula,"true")
         val db = Room.databaseBuilder(context, DatabaseSicenet::class.java, "SICENET").build()
         val userProfileDao = db.DaoSicenet()
+        if (userProfileDao.getAccesoCount()>0 && userProfileDao.getDatosAlumnoCount()>0){
+            userProfileDao.clearDatosAlumno()
+            userProfileDao.clearAcceso()
+        }
         userProfileDao.insertarAlumno(accesos)
         userProfileDao.insertAcceso(acceso2)
 

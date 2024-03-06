@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.Constraints
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -22,6 +23,7 @@ import androidx.work.workDataOf
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
+import com.example.marsphotos.Workers.CalificacionesWorker
 import com.example.marsphotos.data.LocatorCalificacion
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
@@ -66,6 +68,19 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
 //s18120201, 5f_Wx%
+
+    fun iniciarCalificacionesWorker() {
+        // Crear una instancia de WorkRequest para el CalificacionesWorker
+        val calificacionesWorkRequest = OneTimeWorkRequest.Builder(CalificacionesWorker::class.java)
+            .build()
+
+        // Programar la ejecución del trabajo
+        WorkManager.getInstance(context)
+            .enqueue(calificacionesWorkRequest)
+    }
+
+
+
 
 
     fun realizarAccesoLoginInBackground(matricula: String, password: String) {
@@ -296,7 +311,6 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                     // Parsear la respuesta XML usando SimpleXML
                     val serializer = Persister()
                     val soapEnvelope = serializer.read(SoapEnveloCalificacionUni::class.java, responseBodyString)
-
                     // Obtener el objeto específico de la respuesta
                     val califUnidadesResponse = soapEnvelope.body.getCalifUnidadesByAlumnoResponse
 
@@ -312,6 +326,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                     for (calificacion in calificaciones) {
                         Log.d("Calificaciones", " ${calificacion}")
                     }
+                    MarsUiState.Success(califUnidadesResult)
 
 
 

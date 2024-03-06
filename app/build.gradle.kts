@@ -78,6 +78,8 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation ("androidx.navigation:navigation-compose:2.7.7")
 
+// Para Kotlin DSL (build.gradle.kts)
+    implementation("io.insert-koin", "koin-android", "3.1.2")
 
     // Import the Compose BOM
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
