@@ -44,6 +44,7 @@ import com.example.marsphotos.R
 import com.example.marsphotos.data.ServiceLocator.context
 import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
+
 @Composable
 fun LoginScreen(viewModel: MarsViewModel, navController: NavController) {
 
@@ -124,8 +125,7 @@ fun RowButtonLogin(
             onClick = {
                 if (isValidPassword) {
                     viewModel.realizarAccesoLogin(matricula, password)
-                    viewModel.realizarAccesoLoginInBackground(matricula, password)
-
+                    //viewModel.realizarAccesoLoginInBackground(matricula, password)
 
                 }
                       },
@@ -140,6 +140,8 @@ fun RowButtonLogin(
         if (accesoState != null) {
             if (accesoState.acceso == "true") {
                 Log.d("Acceso", "Sí hubo $accesoState")
+                viewModel.getCalifUnidadesByAlumnoResponse()
+
                 navController1.navigate(Route.PantallaDos.route)
 
             } else {

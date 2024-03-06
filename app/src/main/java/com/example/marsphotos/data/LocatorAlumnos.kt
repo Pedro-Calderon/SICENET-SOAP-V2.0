@@ -1,8 +1,7 @@
-import android.annotation.SuppressLint
-import android.util.Log
+
+
 import com.example.marsphotos.data.ServiceLocator
 import com.example.marsphotos.network.PerfilSice
-
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
@@ -19,6 +18,5 @@ object LocatorAlumnos {
 
     val serviceAL: PerfilSice = retrofitAL.create(PerfilSice::class.java)
 
-    var cok=""
 
 }

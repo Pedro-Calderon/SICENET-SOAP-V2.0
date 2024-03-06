@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.room.Room
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.marsphotos.DataBase.Acceso
 import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.DataBase.DatosAlumno
 import com.example.marsphotos.data.ServiceLocator.context
@@ -109,9 +110,11 @@ class AlmacenarDatosLocalWorker(
             acceso1.especialidad,
             acceso1.lineamiento
         )
-        val db = Room.databaseBuilder(context, DatabaseSicenet::class.java, "app-database").build()
+        val acceso2=Acceso(1,acceso1.matricula,"true")
+        val db = Room.databaseBuilder(context, DatabaseSicenet::class.java, "SICENET").build()
         val userProfileDao = db.DaoSicenet()
         userProfileDao.insertarAlumno(accesos)
+        userProfileDao.insertAcceso(acceso2)
 
     }
 }

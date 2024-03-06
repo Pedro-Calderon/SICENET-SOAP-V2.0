@@ -2,6 +2,8 @@ package com.example.marsphotos.ui.screens
 
 import LocatorAlumnos
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,18 +22,23 @@ import androidx.work.workDataOf
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
+import com.example.marsphotos.data.LocatorCalificacion
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
 import com.example.marsphotos.data.ServiceLocator.context
 import com.example.marsphotos.model.AccesoLoginResult
 import com.example.marsphotos.model.AlumnoAcademicoResponse
+import com.example.marsphotos.model.Calificaciones
 import com.example.marsphotos.model.MarsPhoto
+import com.example.marsphotos.model.SoapEnveloCalificacionUni
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.simpleframework.xml.core.Persister
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -51,6 +58,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     val accesoState: AccesoLoginResult? get() = _accesoState
 
 
+    private var _listaCalificaciones: MutableState<List<Calificaciones>> = mutableStateOf(emptyList())
+    val listaCalificaciones: State<List<Calificaciones>> = _listaCalificaciones
 
 
 
@@ -139,16 +148,6 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         }
     }
 
-
-
-
-
-
-
-
-
-
-
     fun realizarAccesoLogin( matricula:String, password:String) {
         val requestBody = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "  <soap:Body>\n" +
@@ -159,8 +158,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
                 "    </accesoLogin>\n" +
                 "  </soap:Body>\n" +
                 "</soap:Envelope>"
-        val requestBody2= requestBody.toRequestBody(
-            "text/xml".toMediaTypeOrNull())
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = ServiceLocator.service.realizarAccesoLogin(
@@ -230,6 +228,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
            marsUiState = MarsUiState.Loading
            marsUiState = try {
                val response = LocatorAlumnos.serviceAL.cargarPerfil(requestBody3)
+
                if (response.isSuccessful) {
                    val responseBodyString = response.body()?.string()
                    val startIndex = responseBodyString?.indexOf("{")
@@ -271,6 +270,63 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
            }
        }
    }
+
+
+
+
+
+    fun getCalifUnidadesByAlumnoResponse() {
+        val requestBodyCal = "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "  <soap:Body>\n" +
+                "    <getCalifUnidadesByAlumno xmlns=\"http://tempuri.org/\" />\n" +
+                "  </soap:Body>\n" +
+                "</soap:Envelope>"
+
+        val requestBodyCali = requestBodyCal.toRequestBody("text/xml".toMediaTypeOrNull())
+
+        viewModelScope.launch(Dispatchers.IO) {
+            marsUiState = MarsUiState.Loading
+
+            try {
+                val response = LocatorCalificacion.serviceCAL.cargaCalificacion(requestBodyCali)
+
+                if (response.isSuccessful) {
+                    val responseBodyString = response.body()?.string()
+
+                    // Parsear la respuesta XML usando SimpleXML
+                    val serializer = Persister()
+                    val soapEnvelope = serializer.read(SoapEnveloCalificacionUni::class.java, responseBodyString)
+
+                    // Obtener el objeto específico de la respuesta
+                    val califUnidadesResponse = soapEnvelope.body.getCalifUnidadesByAlumnoResponse
+
+                    // Acceder a los datos dentro de la respuesta
+                    val califUnidadesResult = califUnidadesResponse.getCalifUnidadesByAlumnoResult
+                    Log.d("Calificaciones", califUnidadesResult)
+
+                    // Deserializar la respuesta JSON utilizando kotlinx.serialization
+                    val calificaciones: List<Calificaciones> = Json.decodeFromString(califUnidadesResult.orEmpty())
+                    _listaCalificaciones.value = calificaciones
+
+                    // Acceder a los datos dentro de la lista de alumnos
+                    for (calificacion in calificaciones) {
+                        Log.d("Calificaciones", " ${calificacion}")
+                    }
+
+
+
+                } else {
+                    MarsUiState.Error
+                }
+            } catch (e: Exception) {
+                MarsUiState.Error
+                Log.d("Error Cali", "$e")
+            }
+        }
+    }
+
+
+
 
 
     init {

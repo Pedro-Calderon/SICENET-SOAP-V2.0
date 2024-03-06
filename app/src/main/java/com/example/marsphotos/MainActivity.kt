@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.marspho.LoginScreen
 import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
+import com.example.marsphotos.ui.screens.loginScreen.Calificaciones
 import com.example.marsphotos.ui.screens.loginScreen.PantallaDos
 import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
@@ -38,6 +39,11 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )}
                         composable(Route.PantallaDos.route){ PantallaDos(
+                            navController = navController,
+                            viewModel = marsViewModel
+                        )
+                        }
+                        composable(Route.Calificaciones.route){ Calificaciones(
                             navController = navController,
                             viewModel = marsViewModel
                         )

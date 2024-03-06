@@ -4,7 +4,6 @@ package com.example.marsphotos.data
 import android.annotation.SuppressLint
 import android.content.Context
 import android.preference.PreferenceManager
-import android.util.Log
 import com.example.marsphotos.data.AddCookiesInterceptor.Companion.PREF_COOKIES
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -15,19 +14,6 @@ object ServiceLocator {
 
     lateinit var context: Context // Contexto que se asignará en algún momento
 
-    /*
-    private fun getCookies(): HashSet<String> {
-
-        return PreferenceManager.getDefaultSharedPreferences(context)
-            .getStringSet(PREF_COOKIES, HashSet()) as HashSet<String>
-    }
-
-    private fun saveCookies(cookies: HashSet<String>) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit()
-            .putStringSet(PREF_COOKIES, cookies)
-            .apply()
-    }*/
     fun getCookies(): HashSet<String> {
         val cookies = PreferenceManager.getDefaultSharedPreferences(context)
             .getStringSet(PREF_COOKIES, HashSet()) as HashSet<String>

@@ -17,7 +17,6 @@ package com.example.marsphotos
 
 import android.app.Application
 import android.util.Log
-import androidx.room.Room
 import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.data.AppContainer
 import com.example.marsphotos.data.DefaultAppContainer
@@ -34,15 +33,7 @@ class MarsPhotosApplication : Application() {
         Log.i("App start", "App initialization")
         ServiceLocator.context = applicationContext
 
-        room = Room.databaseBuilder(ServiceLocator.context, DatabaseSicenet::class.java, "SICENET").build()
-        Log.i("App start 2", "App initialization con base dedatos")
 
-        // Verificar si la base de datos está abierta
-        if (room.isOpen) {
-            Log.i("App start 2", "App initialization con base de datos")
-        } else {
-            Log.e("App start 2", "Error al inicializar la base de datos")
-        }
         container = DefaultAppContainer()
 
 

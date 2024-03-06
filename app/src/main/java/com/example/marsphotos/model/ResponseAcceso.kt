@@ -21,7 +21,8 @@ data class SoapBody @JvmOverloads constructor(
     @field:Element(name = "accesoLoginResponse")
     @field:Namespace(reference = "http://tempuri.org/")
     val accesoLoginResponse: AccesoLoginResponse
-)
+) {
+}
 
 @Root(name = "accesoLoginResponse")
 @Namespace(reference = "http://tempuri.org/")

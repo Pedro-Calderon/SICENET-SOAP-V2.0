@@ -133,10 +133,10 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
             }
 
             Button(
-                onClick = { navController.navigate(Route.LoginScreen.route) }
+                onClick = { navController.navigate(Route.Calificaciones.route) }
             ) {
                 Text(
-                    text = "Ir a pantalla 3"
+                    text = "Ir a Calificacione"
                 )
             }
         }
