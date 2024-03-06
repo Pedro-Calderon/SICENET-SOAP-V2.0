@@ -142,8 +142,6 @@ fun RowButtonLogin(
         if (accesoState != null) {
             if (accesoState.acceso == "true") {
                 Log.d("Acceso", "Sí hubo $accesoState")
-                viewModel.getCalifUnidadesByAlumnoResponse()
-                viewModel.iniciarCalificacionesWorker()
                 navController1.navigate(Route.PantallaDos.route)
 
             } else {

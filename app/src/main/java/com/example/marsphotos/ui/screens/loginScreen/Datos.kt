@@ -222,7 +222,10 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
 
 
             Button(
-                onClick = { navController.navigate(Route.Calificaciones.route) }
+                onClick = {
+                    navController.navigate(Route.Calificaciones.route)
+                    viewModel.getCalifUnidadesByAlumnoResponse()
+                    viewModel.iniciarCalificacionesWorker()}
             ) {
                 Text(
                     text = "Ir a Calificacione"
