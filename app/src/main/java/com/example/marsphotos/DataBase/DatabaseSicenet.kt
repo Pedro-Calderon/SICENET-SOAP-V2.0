@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 @Database(
     entities = [DatosAlumno::class,Acceso::class,CalificacionesEntity::class],
-    version = 2,
+    version = 1,
     exportSchema = false    )
 
 
