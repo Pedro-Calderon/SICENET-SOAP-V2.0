@@ -1,6 +1,7 @@
 package com.example.marsphotos.ui.screens.loginScreen
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
     val calificaciones by remember { viewModel.listaCalificaciones }
     val calificcionesSinCon by remember{viewModel.calificacionesState}
 
+    Log.d("Calificaiones Screen","$calificcionesSinCon")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +51,7 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
             CalificacionItem(calificacion = calificacion)
         }
         items(calificcionesSinCon) { calificcionesSinCon ->
-            CalificacionItem(calificacion = calificcionesSinCon)
+            CalificacionItemSinCon(calificacion = calificcionesSinCon)
         }
 
         item {

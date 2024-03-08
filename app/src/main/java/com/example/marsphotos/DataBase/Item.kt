@@ -62,22 +62,21 @@ data class CalificacionesEntity(
     @PrimaryKey()
     @ColumnInfo(name="id")
     val id: Int,
-    @ColumnInfo(name = "materia")
-    val materia: String?,
-    val observaciones: String?,
-    val c1: String?,
-    val c2: String?,
-    val c3: String?,
-    val c4: String?,
-    val c5: String?,
-    val c6: String?,
-    val c7: String?,
-    val c8: String?,
-    val c9: String?,
-    val c10: String?,
-    val c11: String?,
-    val c12: String?,
-    val c13: String?,
+    val Observaciones: String?,
+    val C13: String?,
+    val C12: String?,
+    val C11: String?,
+    val C10: String?,
+    val C9: String?,
+    val C8: String?,
+    val C7: String?,
+    val C6: String?,
+    val C5: String?,
+    val C4: String?,
+    val C3: String?,
+    val C2: String?,
+    val C1: String?,
     val UnidadesActivas:String?,
-    val grupo:String?
+    val Materia: String?,
+    val Grupo: String?
 )

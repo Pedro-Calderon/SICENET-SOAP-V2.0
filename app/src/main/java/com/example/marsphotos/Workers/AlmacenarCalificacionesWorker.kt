@@ -30,10 +30,10 @@ class AlmacenarCalificacionesWorker(appContext: Context, workerParams: WorkerPar
            val calificacionesList: List<Calificaciones> = gson.fromJson(calificacionesListJson, listType)
             Log.d("WorkerAlmacena 2","$calificacionesList")
 
-          //  for (cali in calificacionesList){
-              //  Log.d("WorkerAlmacena 2","$cali")
+            for (cali in calificacionesList){
+               Log.d("WorkerAlmacena 2","$cali")
 
-           // }
+        }
             // Acceder a la instancia de la base de datos
             val database = DatabaseSicenet.invoke(applicationContext)
 
@@ -60,22 +60,22 @@ class AlmacenarCalificacionesWorker(appContext: Context, workerParams: WorkerPar
 
             dao.insertCalificacion(CalificacionesEntity(
                 id=id,
-                calificacion.Materia,
                 calificacion.Observaciones,
-                calificacion.C1,
-                calificacion.C2,
-                calificacion.C3,
-                calificacion.C4,
-                calificacion.C5,
-                calificacion.C6,
-                calificacion.C7,
-                calificacion.C8,
-                calificacion.C9,
-                calificacion.C10,
-                calificacion.C11,
-                calificacion.C12,
                 calificacion.C13,
+                calificacion.C12,
+                calificacion.C11,
+                calificacion.C10,
+                calificacion.C9,
+                calificacion.C8,
+                calificacion.C7,
+                calificacion.C6,
+                calificacion.C5,
+                calificacion.C4,
+                calificacion.C3,
+                calificacion.C2,
+                calificacion.C1,
                 calificacion.UnidadesActivas,
+                calificacion.Materia,
                 calificacion.Grupo
             ))
             id++

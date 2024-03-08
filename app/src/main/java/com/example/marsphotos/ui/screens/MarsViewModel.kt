@@ -337,27 +337,29 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             try {
                 // Lógica para obtener las calificaciones de la base de datos
                 val calificacionesEntities = database.DaoSicenet().getAllCalificaciones()
+                Log.d("CaliSinCon 1","$calificacionesEntities")
 
                 // Convierte las entidades a la clase de datos que necesitas mostrar en la UI
                 val calificaciones = calificacionesEntities.map { entity ->
                     Calificaciones(
-                        entity.materia,
-                        entity.observaciones,
-                        entity.c1,
-                        entity.c2,
-                        entity.c3,
-                        entity.c4,
-                        entity.c5,
-                        entity.c6,
-                        entity.c7,
-                        entity.c8,
-                        entity.c9,
-                        entity.c10,
-                        entity.c11,
-                        entity.c12,
-                        entity.c13,
+                       entity.Observaciones,
+                        entity.C13,
+                        entity.C12,
+                        entity.C11,
+                        entity.C10,
+                        entity.C9,
+                        entity.C8,
+                        entity.C7,
+                        entity.C6,
+                        entity.C5,
+                        entity.C4,
+                        entity.C3,
+                        entity.C2,
+                        entity.C1,
                         entity.UnidadesActivas,
-                        entity.grupo
+                        entity.Materia,
+                        entity.Grupo
+
                     )
                 }
 
@@ -369,6 +371,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             }
         }
     }
+
 
     fun getCalifUnidadesByAlumnoResponse() {
         val networkUtils = NetworkUtils(context) // 'this' representa el contexto de tu actividad o fragmento
