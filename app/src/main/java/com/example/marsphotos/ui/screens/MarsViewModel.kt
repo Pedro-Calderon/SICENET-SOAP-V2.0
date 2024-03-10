@@ -21,14 +21,17 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.marsphotos.DataBase.Acceso
+import com.example.marsphotos.DataBase.CargaAcademica
 import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.DataBase.DatosAlumno
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
 import com.example.marsphotos.Workers.CalificacionesWorker
+import com.example.marsphotos.Workers.CargaAcademicaWorker
 import com.example.marsphotos.Workers.NetworkUtils
 import com.example.marsphotos.data.LocatorCalificacion
+import com.example.marsphotos.data.LocatorCargaAcademica
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
 import com.example.marsphotos.data.ServiceLocator.context
@@ -36,7 +39,9 @@ import com.example.marsphotos.model.AccesoLoginResult
 import com.example.marsphotos.model.AlumnoAcademicoResponse
 import com.example.marsphotos.model.Calificaciones
 import com.example.marsphotos.model.MarsPhoto
+import com.example.marsphotos.model.ModelocargaAcedemicarga
 import com.example.marsphotos.model.SoapEnveloCalificacionUni
+import com.example.marsphotos.model.SoapEnvelopeCarga
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,6 +74,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     val listaCalificaciones: State<List<Calificaciones>> = _listaCalificaciones
 
 
+    private var _listaCarga: MutableState<List<ModelocargaAcedemicarga>> = mutableStateOf(emptyList())
+    val listaCarga: State<List<ModelocargaAcedemicarga>> = _listaCarga
+
+
     var accesoSinConexion by mutableStateOf<Acceso?>(null)
         private set
     var datosAlumnoSinConexion by mutableStateOf<DatosAlumno?>(null)
@@ -76,6 +85,14 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
     private val _calificacionesState = mutableStateOf<List<Calificaciones>>(emptyList())
     val calificacionesState: State<List<Calificaciones>> = _calificacionesState
+
+
+
+
+    private val _cargaAcademica = mutableStateOf<List<ModelocargaAcedemicarga>>(emptyList())
+    val cargaAcademicaState: State<List<ModelocargaAcedemicarga>> = _cargaAcademica
+
+
 
 
 
@@ -90,6 +107,17 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         WorkManager.getInstance(context)
             .enqueue(calificacionesWorkRequest)
     }
+
+    fun iniciarCargaAcademicaWorker() {
+        // Crear una instancia de WorkRequest para el CargaAcademicaWorker
+        val cargaAcademicaWorkRequest = OneTimeWorkRequest.Builder(CargaAcademicaWorker::class.java)
+            .build()
+
+        // Programar la ejecución del trabajo
+        WorkManager.getInstance(context)
+            .enqueue(cargaAcademicaWorkRequest)
+    }
+
 
     fun realizarAccesoLoginInBackground(matricula: String, password: String) {
         try {
@@ -374,7 +402,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
 
     fun getCalifUnidadesByAlumnoResponse() {
-        val networkUtils = NetworkUtils(context) // 'this' representa el contexto de tu actividad o fragmento
+        val networkUtils = NetworkUtils(context)
 
 
         if (networkUtils.isNetworkAvailable())
@@ -437,8 +465,108 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     }
 
 
+    fun getCargaAcademica(){
+
+        val networkUtils = NetworkUtils(context) // 'this' representa el contexto de tu actividad o fragmento
 
 
+        if (networkUtils.isNetworkAvailable()) {
+            val requestBodyCarga =
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                        "  <soap:Body>\n" +
+                        "    <getCargaAcademicaByAlumno xmlns=\"http://tempuri.org/\" />\n" +
+                        "  </soap:Body>\n" +
+                        "</soap:Envelope>"
+
+            val requestBodyCarga1 = requestBodyCarga.toRequestBody("text/xml".toMediaTypeOrNull())
+
+            viewModelScope.launch(Dispatchers.IO) {
+                marsUiState = MarsUiState.Loading
+
+                try {
+                    val response =
+                        LocatorCargaAcademica.serviceCarga.cargaacademica(requestBodyCarga1)
+
+                    if (response.isSuccessful) {
+                        val responseBodyString = response.body()?.string()
+
+                        // Parsear la respuesta XML usando SimpleXML
+                        val serializer = Persister()
+                        val soapEnvelope =
+                            serializer.read(SoapEnvelopeCarga::class.java, responseBodyString)
+                        // Obtener el objeto específico de la respuesta
+                        val cargaResponse = soapEnvelope.body.getCargaAcademicaByAlumnoResponse
+
+                        // Acceder a los datos dentro de la respuesta
+                        val cargaResult = cargaResponse.getCargaAcademicaByAlumnoResult
+                        Log.d("Carga Academica", cargaResult)
+
+                        // Deserializar la respuesta JSON utilizando kotlinx.serialization
+                        val CargaAcademica: List<ModelocargaAcedemicarga> =
+                            Json.decodeFromString(cargaResult.orEmpty())
+                        _listaCarga.value = CargaAcademica
+
+                        // Acceder a los datos dentro de la lista de alumnos
+                        for (carga in CargaAcademica) {
+                            Log.d("Carga academica", " ${carga}")
+
+                        }
+                        iniciarCargaAcademicaWorker()
+                        MarsUiState.Success(cargaResult)
+
+
+                    } else {
+                        MarsUiState.Error
+                        Log.d("Error carga if", "No fue succes")
+
+                    }
+                } catch (e: Exception) {
+                    MarsUiState.Error
+                    Log.d("Error carga", "$e")
+                }
+            }
+
+        }else{
+            getCargaSinCon()
+        }
+    }
+
+    fun getCargaSinCon(){
+        val database = DatabaseSicenet.invoke(ServiceLocator.context)
+        viewModelScope.launch {
+            try {
+                // Lógica para obtener las calificaciones de la base de datos
+                val cargaAcademica = database.DaoSicenet().getAllCarga()
+                Log.d("CargaSinCon  1","$cargaAcademica")
+
+                // Convierte las entidades a la clase de datos que necesitas mostrar en la UI
+                val cargaAca = cargaAcademica.map { entity ->
+                    ModelocargaAcedemicarga(
+                        entity.Semipresencial,
+                        entity.Observaciones,
+                        entity.Docente,
+                        entity.clvOficial,
+                        entity.Sabado,
+                        entity.Viernes,
+                        entity.Jueves,
+                        entity.Miercoles,
+                        entity.Martes,
+                        entity.Lunes,
+                        entity.EstadoMateria,
+                        entity.CreditosMateria,
+                        entity.Materia,
+                        entity.Grupo
+                    )
+                }
+
+                _cargaAcademica.value = cargaAca
+                Log.d("Carga sinCon","$cargaAca")
+            } catch (e: Exception) {
+                // Manejar las excepciones
+                Log.e("MarsViewModel", "Error al obtener CargaAcademica de la base de datos: $e")
+            }
+        }
+    }
 
 
 

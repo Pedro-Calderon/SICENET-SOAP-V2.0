@@ -26,7 +26,6 @@
     @Composable
     fun HomeScreen(
         marsUiState: MarsUiState,
-        alumnoProfile: AlumnoAcademicoResponse? = null,
     ) {
         when (marsUiState) {
             is MarsUiState.Success -> {

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 @Database(
-    entities = [DatosAlumno::class,Acceso::class,CalificacionesEntity::class],
+    entities = [DatosAlumno::class,Acceso::class,CalificacionesEntity::class, CargaAcademica::class],
     version = 1,
     exportSchema = false    )
 
@@ -16,7 +16,7 @@ abstract class DatabaseSicenet : RoomDatabase() {
     companion object {
         fun invoke(context: Context): DatabaseSicenet {
             return Room.databaseBuilder(context, DatabaseSicenet::class.java, "SICENET")
-                .fallbackToDestructiveMigration()  // Migración destructiva
+                .fallbackToDestructiveMigration()
                 .build()
         }
     }

@@ -1,6 +1,5 @@
 package com.example.marsphotos.ui.screens.loginScreen
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,22 +28,22 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.marsphotos.model.Calificaciones
-import com.example.marsphotos.model.getCalificacion
-import com.example.marsphotos.navegacion.Route
+import com.example.marsphotos.model.ModelocargaAcedemicarga
 import com.example.marsphotos.ui.screens.MarsViewModel
 import com.example.marsphotos.ui.screens.loginScreen.BottomNavigationBar
 
 @Composable
-fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
-    val calificaciones by remember { viewModel.listaCalificaciones }
-    val calificcionesSinCon by remember{viewModel.calificacionesState}
+fun CargaAcademica(navController: NavHostController, viewModel: MarsViewModel) {
+    val carga by remember { viewModel.listaCarga }
+    val cargaOffline by remember {
+        viewModel.cargaAcademicaState
+    }
 
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -54,7 +53,7 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Calificaciones",
+                text = "Carga Académica",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -64,69 +63,65 @@ fun Calificaciones(navController: NavHostController, viewModel: MarsViewModel) {
             LazyColumn(
                 modifier = Modifier.weight(1f)
             ) {
-
-                items(calificaciones) { calificacion ->
-                    CalificacionItem(calificacion = calificacion)
+                items(carga) { cargaItem ->
+                    CargaAcademicaItem(carga = cargaItem)
                 }
-                items(calificcionesSinCon) { calificacion ->
-                    CalificacionItemSinCon(calificacion = calificacion)
+                items(cargaOffline) { cargaItemOff ->
+                    CargaAcademicaItemOffline(carga = cargaItemOff)
                 }
             }
-
-
 
             Spacer(modifier = Modifier.height(16.dp))
-            BottomNavigationBar(navController = navController, viewModel=viewModel)
-
+            BottomNavigationBar(navController = navController, viewModel = viewModel)
         }
-
     }
-
 }
 
 @Composable
-fun CalificacionItem(calificacion: Calificaciones) {
-
-    Card (
+fun CargaAcademicaItem(carga: ModelocargaAcedemicarga) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        //elevation = 4.dp,
         shape = RoundedCornerShape(8.dp)
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
         ) {
             Text(
-                text = "${calificacion.Materia}",
+                text = "Materia: ${carga.Materia}",
                 fontSize = 18.sp,
                 color = Color.Black,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            for (i in 1..13) {
-                val calificacionValue = calificacion.getCalificacion("C$i")
-                if (calificacionValue != null) {
-                    Text(
-                        text = "C$i: $calificacionValue",
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                }
-            }
+            Text(
+                text = "Docente: ${carga.Docente}",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
 
             Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Observación: ")
-                    }
-                    append("${calificacion.Observaciones}\n")
-                },
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 8.dp)
+                text = "Horario: ${carga.Lunes}, ${carga.Martes}, ${carga.Miercoles}, ${carga.Jueves}, ${carga.Viernes}, ${carga.Sabado}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Text(
+                text = "Estado: ${carga.EstadoMateria}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Text(
+                text = "Créditos: ${carga.CreditosMateria}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
         }
     }
@@ -134,48 +129,50 @@ fun CalificacionItem(calificacion: Calificaciones) {
 
 
 @Composable
-fun CalificacionItemSinCon(calificacion: Calificaciones) {
-
-    Card (
+fun CargaAcademicaItemOffline(carga: ModelocargaAcedemicarga) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        //elevation = 4.dp,
         shape = RoundedCornerShape(8.dp)
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
         ) {
             Text(
-                text = "${calificacion.Materia}",
+                text = "Materia: ${carga.Materia}",
                 fontSize = 18.sp,
                 color = Color.Black,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            for (i in 1..13) {
-                val calificacionValue = calificacion.getCalificacion("C$i")
-                if (calificacionValue != null) {
-                    Text(
-                        text = "C$i: $calificacionValue",
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                }
-            }
+            Text(
+                text = "Docente: ${carga.Docente}",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
 
             Text(
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Observación: ")
-                    }
-                    append("${calificacion.Observaciones}\n")
-                },
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 8.dp)
+                text = "Horario: ${carga.Lunes}, ${carga.Martes}, ${carga.Miercoles}, ${carga.Jueves}, ${carga.Viernes}, ${carga.Sabado}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Text(
+                text = "Estado: ${carga.EstadoMateria}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Text(
+                text = "Créditos: ${carga.CreditosMateria}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
         }
     }

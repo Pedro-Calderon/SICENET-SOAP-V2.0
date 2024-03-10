@@ -150,7 +150,10 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
     ) {
         BottomNavigationItem(
             selected = false,
-            onClick = { /* Handle navigation */ },
+            onClick = {
+                navController.navigate(Route.PantallaDos.route)
+
+            },
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Profile")}
         )
@@ -164,7 +167,17 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Calificaiones ") }
         )
-        // Agrega más elementos según tus necesidades
+        BottomNavigationItem(
+            selected = false,
+            onClick = {
+                viewModel.getCargaAcademica()
+
+                navController.navigate(Route.CargaAcademica.route)
+
+            },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+            label = { Text("Carga")}
+        )
     }
 }
 
