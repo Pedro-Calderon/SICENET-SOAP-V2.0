@@ -4,7 +4,9 @@
 
     import androidx.room.Dao
     import androidx.room.Insert
+    import androidx.room.OnConflictStrategy
     import androidx.room.Query
+    import com.example.marsphotos.model.KardexItem
 
 
     @Dao
@@ -51,6 +53,18 @@
         suspend fun clearCarga()
         @Query("SELECT * FROM CargaAcademica")
         suspend fun getAllCarga(): List<CargaAcademica>
-        //
+        //Kardex
+        @Insert
+        suspend fun insertKArdex(Kardex: Kardex)
+        @Query("SELECT COUNT(*) FROM Kardex")
+        suspend fun getKardex(): Int
+        @Query("DELETE FROM Kardex")
+        suspend fun cleaKardex()
+        @Query("SELECT * FROM Kardex")
+        suspend fun getAllKardex(): List<Kardex>
+
+        @Insert
+        suspend fun insertKardexList(kardexList: List<Kardex>)
+
     }
 

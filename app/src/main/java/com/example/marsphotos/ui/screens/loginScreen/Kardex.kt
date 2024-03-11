@@ -1,5 +1,6 @@
 package com.example.marsphotos.ui.screens.loginScreen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import com.example.marsphotos.ui.screens.MarsViewModel
 @Composable
 fun Kardex(navController: NavHostController, viewModel: MarsViewModel) {
     val kardexList by remember { viewModel.listaKardex }
+    val kardexListOffline by remember { viewModel.kardexState }
 
     Box(
         modifier = Modifier
@@ -55,8 +57,13 @@ fun Kardex(navController: NavHostController, viewModel: MarsViewModel) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            KardexList(kardexList = kardexList)
 
+                KardexList(kardexList = kardexList)
+                KardexList(kardexList = kardexListOffline)
+
+
+
+            Log.d("KardexScreen","$kardexListOffline")
             Spacer(modifier = Modifier.height(16.dp))
             BottomNavigationBar(navController = navController, viewModel = viewModel)
         }
@@ -66,6 +73,9 @@ fun Kardex(navController: NavHostController, viewModel: MarsViewModel) {
 @Composable
 fun KardexList(kardexList: List<KardexItem>) {
     LazyColumn {
+        items(kardexList) { kardexItem ->
+            KardexItemCard(kardex = kardexItem)
+        }
         items(kardexList) { kardexItem ->
             KardexItemCard(kardex = kardexItem)
         }

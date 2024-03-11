@@ -102,9 +102,9 @@ data class CargaAcademica(
 )
 @Entity(tableName = "Kardex")
 data class Kardex(
-    @PrimaryKey()
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id:Int,
+    val id:Int=0,
     val S3:String?,
     val P3:String?,
     val A3:String?,

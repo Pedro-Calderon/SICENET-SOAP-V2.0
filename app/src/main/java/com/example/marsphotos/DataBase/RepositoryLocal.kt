@@ -1,15 +1,11 @@
 package com.example.marsphotos.DataBase
-class RepositoryLocal(private val daoSicenet: DaoSicenet) {
+
+import com.example.marsphotos.model.KardexItem
+
+class RepositoryLocal(private val databaseSicenet: DatabaseSicenet) {
 
 
-
-    suspend fun insertDatosAlumno(datosAlumno: DatosAlumno) {
-        daoSicenet.insertarAlumno(datosAlumno)
-    }
-
-
-
-    suspend fun insertAcceso(acceso: Acceso) {
-        daoSicenet.insertAcceso(acceso)
+    suspend fun obtenerKardex(): List<Kardex> {
+        return  databaseSicenet.DaoSicenet().getAllKardex()
     }
 }

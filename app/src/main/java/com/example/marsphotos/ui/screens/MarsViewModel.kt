@@ -21,14 +21,15 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.marsphotos.DataBase.Acceso
-import com.example.marsphotos.DataBase.CargaAcademica
 import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.DataBase.DatosAlumno
+import com.example.marsphotos.DataBase.RepositoryLocal
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.Workers.AccesoLoginWorker
 import com.example.marsphotos.Workers.AlmacenarDatosLocalWorker
 import com.example.marsphotos.Workers.CalificacionesWorker
 import com.example.marsphotos.Workers.CargaAcademicaWorker
+import com.example.marsphotos.Workers.KardexWorker
 import com.example.marsphotos.Workers.NetworkUtils
 import com.example.marsphotos.data.LocatorCalificacion
 import com.example.marsphotos.data.LocatorCargaAcademica
@@ -84,6 +85,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     private var _listaKardex: MutableState<List<KardexItem>> = mutableStateOf(emptyList())
     val listaKardex: State<List<KardexItem>> = _listaKardex
 
+    private val _kardexList = mutableStateOf<List<KardexItem>>(emptyList())
+    val kardexState: State<List<KardexItem>> = _kardexList
+
+
 
     var accesoSinConexion by mutableStateOf<Acceso?>(null)
         private set
@@ -98,6 +103,7 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
 
     private val _cargaAcademica = mutableStateOf<List<ModelocargaAcedemicarga>>(emptyList())
     val cargaAcademicaState: State<List<ModelocargaAcedemicarga>> = _cargaAcademica
+
 
 
 
@@ -580,72 +586,130 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         val networkUtils = NetworkUtils(context)
 
         if (networkUtils.isNetworkAvailable()) {
-            val requestBodyKardex =
-                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                        "  <soap:Body>\n" +
-                        "    <getAllKardexConPromedioByAlumno xmlns=\"http://tempuri.org/\">\n" +
-                        "      <aluLineamiento>$lineamiento</aluLineamiento>\n" +
-                        "    </getAllKardexConPromedioByAlumno>\n" +
-                        "  </soap:Body>\n" +
-                        "</soap:Envelope>"
+                val requestBodyKardex =
+                    "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                            "  <soap:Body>\n" +
+                            "    <getAllKardexConPromedioByAlumno xmlns=\"http://tempuri.org/\">\n" +
+                            "      <aluLineamiento>$lineamiento</aluLineamiento>\n" +
+                            "    </getAllKardexConPromedioByAlumno>\n" +
+                            "  </soap:Body>\n" +
+                            "</soap:Envelope>"
 
-            val requestBodyKardex1 =
-                requestBodyKardex.toRequestBody("text/xml".toMediaTypeOrNull())
+                val requestBodyKardex1 =
+                    requestBodyKardex.toRequestBody("text/xml".toMediaTypeOrNull())
 
-            viewModelScope.launch(Dispatchers.IO) {
-                marsUiState = MarsUiState.Loading
+                viewModelScope.launch(Dispatchers.IO) {
+                    marsUiState = MarsUiState.Loading
 
-                try {
-                    val response =
-                        LocatorKardex.serviceKardex.cargarKardex(requestBodyKardex1)
+                    try {
+                        val response =
+                            LocatorKardex.serviceKardex.cargarKardex(requestBodyKardex1)
 
-                    if (response.isSuccessful) {
-                        val responseBodyString = response.body()?.string()
+                        if (response.isSuccessful) {
+                            val responseBodyString = response.body()?.string()
 
-                        // Parsear la respuesta XML usando SimpleXML
-                        val serializer = Persister()
-                        val soapEnvelope =
-                            serializer.read(SoapEnvelopeKardex::class.java, responseBodyString)
+                            // Parsear la respuesta XML usando SimpleXML
+                            val serializer = Persister()
+                            val soapEnvelope =
+                                serializer.read(SoapEnvelopeKardex::class.java, responseBodyString)
 
-                        // Obtener el objeto específico de la respuesta
-                        val kardexResponse = soapEnvelope.body.getAllKardexConPromedioByAlumnoResponse
+                            // Obtener el objeto específico de la respuesta
+                            val kardexResponse = soapEnvelope.body.getAllKardexConPromedioByAlumnoResponse
 
-                        // Acceder a los datos dentro de la respuesta
-                        val kardexResult = kardexResponse.getAllKardexConPromedioByAlumnoResult
-                        Log.d("Kardex", kardexResult)
+                            // Acceder a los datos dentro de la respuesta
+                            val kardexResult = kardexResponse.getAllKardexConPromedioByAlumnoResult
+                            Log.d("Kardex", kardexResult)
 
-                        // Deserializar la respuesta JSON utilizando kotlinx.serialization
-                        val gson = Gson()
-                        val kardexListResponse: KardexResponse =
-                            gson.fromJson(kardexResult, KardexResponse::class.java)
+                            // Deserializar la respuesta JSON utilizando kotlinx.serialization
+                            val gson = Gson()
+                            val kardexListResponse: KardexResponse =
+                                gson.fromJson(kardexResult, KardexResponse::class.java)
 
-                        // Obtén la lista de kardex
-                        val kardexList: List<KardexItem> = kardexListResponse.lstKardex
+                            // Obtén la lista de kardex
+                            val kardexList: List<KardexItem> = kardexListResponse.lstKardex
 
-                        // Ahora puedes acceder a la lista de kardex
-                        for (kardex in kardexList) {
-                            Log.d("Kardex Item", "$kardex")
+                            // Ahora puedes acceder a la lista de kardex
+                            for (kardex in kardexList) {
+                                Log.d("Kardex Item", "$kardex")
+                            }
+                            _listaKardex.value = kardexList
+
+                            iniciarProcesoKardex(lineamiento.toString())
+                            MarsUiState.Success(kardexResult)
+
+                        } else {
+                            MarsUiState.Error
+                            Log.d("Error kardex if", "No fue succes")
                         }
-                        _listaKardex.value = kardexList
-
-                        MarsUiState.Success(kardexResult)
-
-                    } else {
+                    } catch (e: Exception) {
                         MarsUiState.Error
-                        Log.d("Error kardex if", "No fue succes")
+                        Log.d("Error carga", "$e")
                     }
-                } catch (e: Exception) {
-                    MarsUiState.Error
-                    Log.d("Error carga", "$e")
                 }
-            }
 
         } else {
 
+            getKardexSinCondicion()
         }
     }
 
 
+
+    fun iniciarProcesoKardex(lineamiento: String) {
+
+        val inputData = workDataOf("lineamiento" to lineamiento)
+
+
+        // Crear una instancia de WorkRequest para el CargaAcademicaWorker
+        val KardexWorker = OneTimeWorkRequest
+            .Builder(KardexWorker::class.java)
+            .setInputData(inputData)
+            .build()
+
+        // Programar la ejecución del trabajo
+        WorkManager.getInstance(context)
+            .enqueue(KardexWorker)
+
+    }
+
+
+    fun getKardexSinCondicion() {
+        _listaKardex.value = emptyList()
+
+        viewModelScope.launch {
+            try {
+                val repo= RepositoryLocal(DatabaseSicenet.invoke(context))
+                val kardexSinCondicion = repo.obtenerKardex()
+                Log.d("SinConexionKardex","$kardexSinCondicion")
+
+                // Convierte las entidades a la clase de datos que necesitas mostrar en la UI
+                val kardex1 = kardexSinCondicion.map { entity ->
+                        KardexItem(
+                            entity.S3,
+                            entity.P2,
+                            entity.A3,
+                            entity.ClvMat.toString(),
+                            entity.ClvOfiMat.toString(),
+                            entity.Materia,
+                            entity.Cdts,
+                            entity.Calif?.toInt(),
+                            entity.Acred,
+                            entity.S1,
+                            entity.P1,
+                            entity.A1,
+                            entity.S2,
+                            entity.P2,
+                            entity.A2
+                        )
+                }
+                _kardexList.value=kardex1
+                Log.d("SinConexionKardex item","$kardex1")
+
+            } catch (e: Exception) {
+                // Manejar errores si es necesario
+            }
+        }
+    }
     init {
         getMarsPhotos()
 

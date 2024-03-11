@@ -2,6 +2,7 @@ package com.example.marsphotos.ui.screens.loginScreen
 
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -144,6 +145,8 @@ fun DatosItem(label: String, value: String) {
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewModel) {
+    val alumno = rememberUpdatedState(newValue = viewModel.alumnoProfile)
+
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 8.dp
@@ -182,8 +185,8 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
             selected = false,
             onClick = {
                 viewModel.getKardex()
+                //viewModel.iniciarProcesoKardex(alumno.value?.lineamiento.toString())
                 navController.navigate(Route.Kardex.route)
-
             },
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Kardex")}

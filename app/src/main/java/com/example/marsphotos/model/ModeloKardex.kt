@@ -1,6 +1,5 @@
 package com.example.marsphotos.model
 
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.Namespace
@@ -42,13 +41,13 @@ data class KardexItem(
     val A3: String?,
     val ClvMat: String,
     val ClvOfiMat: String,
-    val Materia: String,
-    val Cdts: Int,
-    val Calif: Int,
-    val Acred: String,
-    val S1: String,
-    val P1: String,
-    val A1: String,
+    val Materia: String?,
+    val Cdts: String?,
+    val Calif: Int?,
+    val Acred: String?,
+    val S1: String?,
+    val P1: String?,
+    val A1: String?,
     val S2: String?,
     val P2: String?,
     val A2: String?
