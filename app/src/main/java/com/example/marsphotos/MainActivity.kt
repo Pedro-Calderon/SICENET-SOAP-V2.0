@@ -17,6 +17,7 @@ import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
 import com.example.marsphotos.ui.screens.loginScreen.Calificaciones
 import com.example.marsphotos.ui.screens.loginScreen.CargaAcademica
+import com.example.marsphotos.ui.screens.loginScreen.Kardex
 import com.example.marsphotos.ui.screens.loginScreen.PantallaDos
 import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
@@ -52,7 +53,13 @@ class MainActivity : ComponentActivity() {
                         composable(Route.CargaAcademica.route){ CargaAcademica(
                             navController = navController,
                             viewModel = marsViewModel
-                        )}
+                        )
+                        }
+                        composable(Route.Kardex.route){ Kardex(
+                            navController = navController,
+                            viewModel = marsViewModel
+                        )
+                        }
                     }
 
                 }

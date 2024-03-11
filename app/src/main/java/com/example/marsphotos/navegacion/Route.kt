@@ -5,6 +5,7 @@ sealed class Route (val route: String){
     object PantallaDos:Route("PantallaDos")
     object Calificaciones:Route("Calificaciones")
     object CargaAcademica:Route("CargaAcademica")
+    object Kardex:Route("Kardex")
 
 
 

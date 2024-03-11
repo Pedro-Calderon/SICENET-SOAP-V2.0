@@ -41,19 +41,15 @@ fun MarsPhotosApp() {
         ) {
             HomeScreen(
                 marsUiState = marsViewModel.marsUiState,
-                alumnoProfile = marsViewModel.alumnoProfile
             )
         }
     }
 
 
-    LaunchedEffect(marsViewModel.alumnoProfile) {
 
-
-
-    }
 
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarsTopAppBar(scrollBehavior: TopAppBarScrollBehavior, modifier: Modifier = Modifier) {
     CenterAlignedTopAppBar(

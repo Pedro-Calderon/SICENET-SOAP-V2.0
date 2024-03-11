@@ -178,6 +178,16 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Carga")}
         )
+        BottomNavigationItem(
+            selected = false,
+            onClick = {
+                viewModel.getKardex()
+                navController.navigate(Route.Kardex.route)
+
+            },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+            label = { Text("Kardex")}
+        )
     }
 }
 

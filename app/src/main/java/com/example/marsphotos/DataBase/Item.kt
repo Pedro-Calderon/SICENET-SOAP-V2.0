@@ -99,6 +99,25 @@ data class CargaAcademica(
     val CreditosMateria: Int,
     val Materia: String,
     val Grupo: String,
-
-
 )
+@Entity(tableName = "Kardex")
+data class Kardex(
+    @PrimaryKey()
+    @ColumnInfo(name = "id")
+    val id:Int,
+    val S3:String?,
+    val P3:String?,
+    val A3:String?,
+    val ClvMat:String?,
+    val ClvOfiMat:String?,
+    val Materia:String?,
+    val Cdts:String?,
+    val Calif:String?,
+    val Acred:String?,
+    val S1:String?,
+    val P1:String?,
+    val A1:String?,
+    val S2:String?,
+    val P2:String?,
+    val A2:String?
+    )

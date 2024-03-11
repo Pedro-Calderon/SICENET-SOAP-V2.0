@@ -51,5 +51,6 @@
         suspend fun clearCarga()
         @Query("SELECT * FROM CargaAcademica")
         suspend fun getAllCarga(): List<CargaAcademica>
+        //
     }
 
