@@ -120,4 +120,12 @@ data class Kardex(
     val S2:String?,
     val P2:String?,
     val A2:String?
-    )
+)
+
+@Entity(tableName = "Fecha")
+data class UltimaConexion(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    val id:Int=0,
+    val fehca:String
+)

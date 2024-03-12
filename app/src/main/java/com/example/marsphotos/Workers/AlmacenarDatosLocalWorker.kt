@@ -10,8 +10,10 @@ import androidx.work.WorkerParameters
 import com.example.marsphotos.DataBase.Acceso
 import com.example.marsphotos.DataBase.DatabaseSicenet
 import com.example.marsphotos.DataBase.DatosAlumno
+import com.example.marsphotos.DataBase.UltimaConexion
 import com.example.marsphotos.data.ServiceLocator.context
 import com.example.marsphotos.model.AlumnoAcademicoResponse
+import com.example.marsphotos.model.ModeloFecha
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,6 +21,9 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class AlmacenarDatosLocalWorker(
     appContext: Context,
@@ -92,9 +97,18 @@ class AlmacenarDatosLocalWorker(
 
 
     private suspend fun almacenarDatosLocalmente(acceso1: AlumnoAcademicoResponse) {
+        // Definir el formato de fecha deseado
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
+        // Obtener la fecha y hora actual
+        val currentDate = Calendar.getInstance().time
+
+        // Convertir la fecha actual al formato de cadena
+        val dateString: String = dateFormat.format(currentDate)
+
         val accesos=DatosAlumno(
             1,
-           acceso1.matricula,
+            acceso1.matricula,
             acceso1.nombre,
             acceso1.carrera,
             acceso1.lineamiento,
@@ -117,8 +131,15 @@ class AlmacenarDatosLocalWorker(
             userProfileDao.clearDatosAlumno()
             userProfileDao.clearAcceso()
         }
+
+        if (userProfileDao.getFechas()>0 ){
+            userProfileDao.cleaFechas()
+        }
+
         userProfileDao.insertarAlumno(accesos)
         userProfileDao.insertAcceso(acceso2)
+        userProfileDao.insertarFecha(UltimaConexion(1,dateString))
+
 
     }
 }

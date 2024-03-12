@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.remember
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -25,21 +29,38 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.marsphotos.model.ModeloFecha
 import com.example.marsphotos.navegacion.Route
 import com.example.marsphotos.ui.screens.MarsViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
     val alumno = rememberUpdatedState(newValue = viewModel.alumnoProfile)
     val alumnoSinCon= rememberUpdatedState(newValue = viewModel.datosAlumnoSinConexion)
+
+    val infoConexion by remember {
+        viewModel.accesoFechaConexion
+    }
+
+
 
 
     Box(
@@ -87,10 +108,24 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
                         DatosItem("Especialidad:", alumno.especialidad)
                         DatosItem("Carrera:", alumno.carrera)
                         DatosItem("Lineamiento:", alumno.lineamiento.toString())
+
+
                     }
                 }
             }
             alumnoSinCon.value?.let { alumnoSinCon ->
+                Log.d("fecha screen", "$infoConexion")
+
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(infoConexion) { cargaItem ->
+                        conexionInfo(modelo = cargaItem)
+                    }
+                }
+
+                Log.d("fecha screen", "Paso la fecha")
+
                 // Muestra los datos según sea necesario
                 Surface (
                     modifier = Modifier.fillMaxWidth(),
@@ -98,6 +133,7 @@ fun PantallaDos(navController: NavHostController, viewModel: MarsViewModel) {
                     elevation = 4.dp,
                     shape = RoundedCornerShape(8.dp)
                 ) {
+
                     Column (modifier = Modifier.padding(16.dp)) {
                         DatosItem("Matricula:", alumnoSinCon.itemMatricula)
                         DatosItem("Nombre:", alumnoSinCon.itemNombre)
@@ -141,6 +177,16 @@ fun DatosItem(label: String, value: String) {
             modifier = Modifier.weight(1f)
         )
     }
+}
+
+@Composable
+fun conexionInfo(modelo: ModeloFecha) {
+    Text(
+        text = modelo.fecha,
+        color = Color.Red
+    )
+    Log.d("fecha screen", "${ModeloFecha}")
+
 }
 
 @Composable
@@ -193,4 +239,7 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
         )
     }
 }
+
+
+
 
