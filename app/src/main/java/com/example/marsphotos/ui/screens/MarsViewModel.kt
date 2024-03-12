@@ -34,6 +34,7 @@ import com.example.marsphotos.Workers.KardexWorker
 import com.example.marsphotos.Workers.NetworkUtils
 import com.example.marsphotos.data.LocatorCalificacion
 import com.example.marsphotos.data.LocatorCargaAcademica
+import com.example.marsphotos.data.LocatorFinal
 import com.example.marsphotos.data.LocatorKardex
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.data.ServiceLocator
@@ -41,6 +42,7 @@ import com.example.marsphotos.data.ServiceLocator.context
 import com.example.marsphotos.model.AccesoLoginResult
 import com.example.marsphotos.model.AlumnoAcademicoResponse
 import com.example.marsphotos.model.Calificaciones
+import com.example.marsphotos.model.CalificacionesResponse
 import com.example.marsphotos.model.KardexItem
 import com.example.marsphotos.model.KardexResponse
 import com.example.marsphotos.model.MarsPhoto
@@ -49,6 +51,8 @@ import com.example.marsphotos.model.ModelocargaAcedemicarga
 import com.example.marsphotos.model.SoapEnveloCalificacionUni
 import com.example.marsphotos.model.SoapEnvelopeCarga
 import com.example.marsphotos.model.SoapEnvelopeKardex
+import com.example.marsphotos.model.SoapEnvelopeRequest
+import com.example.marsphotos.Workers.CalificacionFinalWoker
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,7 +89,12 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
     private var _listaCalificaciones: MutableState<List<Calificaciones>> = mutableStateOf(emptyList())
     val listaCalificaciones: State<List<Calificaciones>> = _listaCalificaciones
 
-
+    //Calificaciones finales
+    private var _listaCalificacionesFinales: MutableState<List<CalificacionesResponse>> = mutableStateOf(emptyList())
+    val listaCalificacionesFinales: State<List<CalificacionesResponse>> = _listaCalificacionesFinales
+    private val _listaFinales = mutableStateOf<List<CalificacionesResponse>>(emptyList())
+    val finalesState: State<List<CalificacionesResponse>> = _listaFinales
+//carga
     private var _listaCarga: MutableState<List<ModelocargaAcedemicarga>> = mutableStateOf(emptyList())
     val listaCarga: State<List<ModelocargaAcedemicarga>> = _listaCarga
     //estado del kardex
@@ -496,6 +505,114 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             getCalisinConexion()
         }
     }
+
+    fun getCalificacionesFinalesSinConexion() {
+        val database = DatabaseSicenet.invoke(ServiceLocator.context)
+        viewModelScope.launch {
+            try {
+                // Lógica para obtener las calificaciones finales de la base de datos
+                val calificacionesFinalesEntities = database.DaoSicenet().getAllCalificacionesFinal()
+                Log.d("CaliFinalesSinCon 1", "$calificacionesFinalesEntities")
+
+                // Convierte las entidades a la clase de datos que necesitas mostrar en la UI
+                val calificacionesFinales = calificacionesFinalesEntities.map { entity ->
+                    CalificacionesResponse(
+                        entity.calif,
+                        entity.acred,
+                        entity.grupo,
+                        entity.materia,
+                        entity.Observacion
+                    )
+                }
+
+                _listaFinales.value = calificacionesFinales
+                Log.d("CaliFinalesSinCon", "$calificacionesFinales")
+            } catch (e: Exception) {
+                // Manejar las excepciones
+                Log.e("MarsViewModel", "Error al obtener calificaciones finales de la base de datos: $e")
+            }
+        }
+    }
+    fun iniciarProcesoCalificacioneFinales(modeloE: String){
+        val inputData = workDataOf("modeloE" to modeloE)
+
+
+        //cREAR UNA INSTANCIA DE WORRESQUESTE
+
+        val FinalesWorker = OneTimeWorkRequest
+            .Builder(CalificacionFinalWoker::class.java)
+            .setInputData(inputData)
+            .build()
+
+        //Programar a ejecucion del trabajo
+
+        WorkManager.getInstance(context)
+            .enqueue(FinalesWorker)
+    }
+    fun getAllCalifFinalByAlumnos() {
+        Log.d("aqui deberian estar las calificaciones", " ")
+        val modeloE = alumnoProfile?.modEducativo
+        val networkUtils = NetworkUtils(context)
+
+        if (networkUtils.isNetworkAvailable()) {
+            val requestBody =
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                        "  <soap:Body>\n" +
+                        "    <getAllCalifFinalByAlumnos xmlns=\"http://tempuri.org/\">\n" +
+                        "      <bytModEducativo>$modeloE</bytModEducativo>\n" +
+                        "    </getAllCalifFinalByAlumnos>\n" +
+                        "  </soap:Body>\n" +
+                        "</soap:Envelope>"
+
+            val requestBodyCali = requestBody.toRequestBody("text/xml".toMediaTypeOrNull())
+
+            viewModelScope.launch(Dispatchers.IO) {
+                marsUiState = MarsUiState.Loading
+
+                try {
+                    val response = LocatorFinal.serviceFinal.cargaFinal(requestBodyCali)
+
+                    if (response.isSuccessful) {
+                        val responseBodyString = response.body()?.string()
+
+                        // Parsear la respuesta XML usando SimpleXML
+                        val serializer = Persister()
+                        val soapEnvelope =
+                            serializer.read(SoapEnvelopeRequest::class.java, responseBodyString)
+                        // Obtener el objeto específico de la respuesta
+                        val califFinalResponse = soapEnvelope.body.getAllCalifFinalByAlumnosResponse
+
+                        // Acceder a los datos dentro de la respuesta
+                        val califFinalResult = califFinalResponse.getAllCalifFinalByAlumnosResult
+                        Log.d("CalificacionesFinales", califFinalResult)
+
+                        // Deserializar la respuesta JSON utilizando kotlinx.serialization
+                        val calificacionesFinales: List<CalificacionesResponse> =
+                            Json.decodeFromString(califFinalResult.orEmpty())
+                        _listaCalificacionesFinales.value = calificacionesFinales
+
+
+
+                        // Acceder a los datos dentro de la lista de calificaciones finales
+                        for (calificacionFinal in calificacionesFinales) {
+                            Log.d("CalificacionesFinales", " $calificacionFinal")
+                        }
+
+                        iniciarProcesoCalificacioneFinales (modeloE.toString())
+                        MarsUiState.Success(califFinalResult)
+                    } else {
+                        MarsUiState.Error
+                    }
+                } catch (e: Exception) {
+                    MarsUiState.Error
+                    Log.d("Error CalificacionesFinales", "$e")
+                }
+            }
+        } else {
+            getCalificacionesFinalesSinConexion()
+        }
+    }
+
 
 
     fun getCargaAcademica(){

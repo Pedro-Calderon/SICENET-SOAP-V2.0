@@ -237,6 +237,16 @@ fun BottomNavigationBar(navController: NavHostController, viewModel:MarsViewMode
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Kardex")}
         )
+        BottomNavigationItem(
+            selected = false,
+            onClick = {
+                viewModel.getAllCalifFinalByAlumnos()
+                navController.navigate(Route.CalificacionesFinales.route)
+
+            },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+            label = { Text("CalificacionesF")}
+        )
     }
 }
 

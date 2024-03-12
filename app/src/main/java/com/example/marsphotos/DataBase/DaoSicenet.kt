@@ -43,6 +43,15 @@ interface DaoSicenet {
     suspend fun clearCalificacionesTable()
     @Query("SELECT * FROM Calificaciones")
     suspend fun getAllCalificaciones(): List<CalificacionesEntity>
+    // Calificaciones finales
+    @Insert
+    suspend fun insertCalificacionFinal(calificacionF: Califinal)
+    @Query("SELECT COUNT(*) FROM Calificacion_final")
+    suspend fun  getCalificacionFinal():Int
+    @Query ("DELETE FROM Calificacion_final")
+    suspend fun clearCALIFICACIONFINAL()
+    @Query("SELECT * FROM Calificacion_final")
+    suspend fun getAllCalificacionesFinal(): List<Califinal>
 
     //CargaAcademica
 

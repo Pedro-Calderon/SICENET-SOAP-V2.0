@@ -80,6 +80,18 @@ data class CalificacionesEntity(
     val Materia: String?,
     val Grupo: String?
 )
+
+@Entity(tableName = "Calificacion_final")
+data class  Califinal(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name="id")
+    val id: Int=0,
+    val calif: Int,
+    val acred: String,
+    val grupo: String,
+    val materia: String,
+    val Observacion: String
+)
 @Entity(tableName = "CargaAcademica")
 data class CargaAcademica(
     @PrimaryKey()
